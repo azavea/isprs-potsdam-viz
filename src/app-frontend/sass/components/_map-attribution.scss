@@ -1,0 +1,73 @@
+/* * * *
+ * Map Attribution
+ * Custom map attribution component to use instead of Leaflet/OpenLayers/etc component.
+ * * * */
+
+.leaflet-control-attribution {
+  @if $leaflet-control-attribution-on == false {
+    display: none;
+  }
+}
+
+.map-attribution {
+  position: absolute;
+  z-index: $zindex-map-attribution;
+  cursor: pointer;
+  font-size: $map-attribution-font-size;
+  padding: 0.2em 0.5em;
+  background-color: rgba(255, 255, 255, 0.75);
+  user-select: none;
+  color: $map-attribution-font-color;
+
+  &.active {
+    .map-attribution-label {
+      display: none;
+    }
+    .map-attribution-text {
+      display: inline;
+    }
+    .map-attribution-button {
+      background-color: lighten($brand-primary, 20%);
+    }
+  }
+
+  &.bottom {
+    bottom: 0;
+  }
+
+  &.left {
+    left: 0;
+  }
+
+  &.right {
+    right: 0;
+  }
+
+  &.top {
+    top: 0;
+  }
+}
+
+.map-attribution-text {
+  // Hide attribution text by default
+  display: none;
+}
+
+.map-attribution-button {
+  background-color: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 100%;
+  color: #fff;
+  background-color: $brand-primary;
+  width: 1.4em;
+  height: 1.4em;
+  font-size: 1em;
+  text-align: center;
+  line-height: 1.4em;
+}
+
+.map-attribution-text, .map-attribution-label {
+  margin-right: 0.25rem;
+}

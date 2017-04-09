@@ -1,0 +1,21 @@
+version: '2.1'
+services:
+  nginx:
+    image: pointcloud-nginx:${GIT_COMMIT:-latest}
+    build:
+      context: ./src/nginx
+      dockerfile: Dockerfile
+  app-frontend:
+    image: node:6.9-slim
+    working_dir: /usr/src
+    volumes:
+      - ./src/app-frontend:/usr/src
+      - ./src/nginx/srv/dist/:/usr/src/dist/
+      - /var/cache/pc-demo-node-modules:/usr/src/node_modules
+    entrypoint: npm
+    command: run bundle
+  api-server:
+    image: pointcloud-api-server:${GIT_COMMIT:-latest}
+    build:
+      context: ./src/app-backend/server
+      dockerfile: Dockerfile

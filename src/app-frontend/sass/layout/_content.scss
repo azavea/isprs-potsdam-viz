@@ -1,0 +1,53 @@
+.flex-container {
+  display: flex;
+  -webkit-justify-content: space-around;
+  flex-grow: 1;
+  flex-shrink: 1;
+  position: relative;
+}
+
+.flex-expand {
+  background-color: #000;
+  color: #fff;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+}
+
+.app-fullscreen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+
+
+/* * * *
+ * Containers
+ * * * */
+.content-scrollable {
+  overflow-y: auto;
+}
+
+.container-fluid {
+  position: relative;
+}
+
+.container {
+  position: relative;
+  margin: 0 auto;
+  /* Widths/breakpoints should be figured out later and assigned to variables */
+  max-width: 1000px;
+}
+
+/* Style for this specific application */
+.container-fluid {
+  height: 300px;
+}

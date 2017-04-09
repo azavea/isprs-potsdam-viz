@@ -1,0 +1,103 @@
+/* * * *
+ * Responsive Breakpoint Manager
+ * requires $breakpoints from _variables.scss > $breakpoints
+ * Useage: @include respond-to('small') {...}
+ * * * */
+@mixin respond-to($breakpoint) {
+  // If the key exists in the map
+  @if map-has-key($breakpoints, $breakpoint) {
+    // Prints a media query based on the value
+    @media #{inspect(map-get($breakpoints, $breakpoint))} {
+      @content;
+    }
+  }
+ 
+  // If the key doesn't exist in the map
+  @else {
+    @warn "Unfortunately, no value could be retrieved from `#{$breakpoint}`. "
+        + "Available breakpoints are: #{map-keys($breakpoints)}.";
+  }
+}
+
+/* * * *
+ * Generate Alerts
+ * * * */
+@mixin generate-alert($name:'', $color:#666) {
+  .alert#{$name} {
+    @if $alert-ghost-style {
+      border-color: $color;
+      color: $color;
+      background-color: transparent;
+    } @else {
+      background-color: $color;
+      color: $alert-font-color;
+    }
+  }
+}
+
+// TODO: Add style for a close/X button to be placed on right side of alert.
+
+/* * * *
+ * Generate Padding Utility Classes
+ * * * */
+@mixin generate-padding($i: 1) {
+  @for $i from (1 + 1) through 5 {
+    $padding: $i * 1rem;
+    .padding-#{$i} {
+      padding: $padding;
+    }
+    .padding-bottom-#{$i} {
+      padding-bottom: $padding;
+    }
+    .padding-top-#{$i} {
+      padding-top: $padding;
+    }
+    .padding-left-#{$i} {
+      padding-left: $padding;
+    }
+    .padding-right-#{$i} {
+      padding-right: $padding;
+    }
+  }
+}
+
+/* * * *
+ * Generate Margin Utility Classes
+ * * * */
+@mixin generate-margin($i: 0) {
+  @for $i from (1 + 1) through 5 {
+    $margin: $i * 1rem;
+    .margin-#{$i} {
+      margin: $margin;
+    }
+    .margin-bottom-#{$i} {
+      margin-bottom: $margin;
+    }
+    .margin-top-#{$i} {
+      margin-top: $margin;
+    }
+    .margin-left-#{$i} {
+      margin-left: $margin;
+    }
+    .margin-right-#{$i} {
+      margin-right: $margin;
+    }
+  }
+}
+
+/* * * *
+ * Clearfix
+ * Source: https://github.com/twbs/bootstrap-sass/
+ *         blob/master/assets/stylesheets/bootstrap/
+ *         mixins/_clearfix.scss
+ * * * */
+@mixin clearfix() {
+  &:before,
+  &:after {
+    content: " "; // 1
+    display: table; // 2
+  }
+  &:after {
+    clear: both;
+  }
+}

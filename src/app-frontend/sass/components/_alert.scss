@@ -1,0 +1,23 @@
+// Alert
+
+.alert {
+  padding: $alert-padding-vertical $alert-padding-horizontal;
+  border-radius: $alert-border-radius;
+  border: 2px solid transparent;
+  font-size: $alert-font-size;
+}
+
+@include generate-alert();
+
+@include generate-alert(-primary, $brand-primary);
+
+@include generate-alert(-secondary, $brand-secondary);
+
+@include generate-alert(-danger, $brand-danger);
+
+@include generate-alert(-warning, $brand-warning);
+
+.alert-heading {
+  font-size: $alert-heading-font-size;
+  font-weight: $alert-heading-font-weight;
+}

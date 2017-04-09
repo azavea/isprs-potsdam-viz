@@ -1,0 +1,16 @@
+/* * * *
+ * Exponential
+ * Calculates mathematical exponent, like 3 to the 2nd power
+ * Useage: exponential(3,2)
+ * * * */
+ @function exponential($number, $exponent) {
+  $value: 1;
+
+  @if $exponent > 0 {
+    @for $i from 1 through $exponent {
+      $value: $value * $number;
+    }
+  }
+
+  @return $value;
+}

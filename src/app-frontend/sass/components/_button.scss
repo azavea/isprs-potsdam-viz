@@ -1,0 +1,110 @@
+@mixin button-states($color) {
+  &:hover, &.hover,
+  &:active, &.active, {
+    background-color: darken($color, 5%);
+  }
+
+  &:active, &.active {
+    box-shadow: inset 0 2px 2px 0px rgba(black, .2);
+  }
+
+  &:focus, &.focus {
+    outline: none;
+    box-shadow: 0 1px 2px -1px $brand-primary;
+  }
+
+  // Note: <buttons> and <a> handle active+focus differently. This will normalize behaviour.
+  &:focus:active {
+    box-shadow: inset 0 2px 2px 0px rgba(black, .2);
+  }
+
+  &:disabled, &.disabled {
+    opacity: .5;
+  }
+}
+
+.button {
+  display: inline-block;
+  -webkit-appearance: none;
+  cursor: pointer;
+  vertical-align: middle;
+  text-align: center;
+  text-decoration: none;
+  overflow: visible;
+  font-size: $font-size-base;
+  line-height: 1.5;
+  padding: $button-padding-vertical $button-padding-horizontal;
+  border-radius: $button-border-radius;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  color: $brand-primary;
+
+  &:hover, &.hover,
+  &:active, &.active, {
+    background-color: #f3f3f3;
+  }
+
+  &:active, &.active {
+    box-shadow: inset 0 1px 2px -1px rgba(black, .1);
+  }
+
+  &:focus, &.focus {
+    outline: none;
+    box-shadow: 0 1px 2px -1px $brand-primary;
+  }
+
+  // Note: <buttons> and <a> handle active+focus differently. This will normalize behaviour.
+  &:focus:active {
+    box-shadow: inset 0 1px 2px -1px rgba(black, .1);
+  }
+
+  &:disabled, &.disabled {
+    opacity: .5;
+    cursor: not-allowed;
+  }
+}
+
+.button-primary {
+  color: #fff;
+  background-color: $brand-primary;
+  border-color: darken($brand-primary, 5%);
+
+  @include button-states($brand-primary);
+}
+
+.button-secondary {
+  color: #fff;
+  background-color: $brand-secondary;
+  border-color: darken($brand-secondary, 5%);
+
+  @include button-states($brand-secondary);
+}
+
+.button-danger {
+  color: #fff;
+  background-color: $brand-danger;
+  border-color: darken($brand-danger, 5%);
+
+  @include button-states($brand-danger);
+}
+
+.button-warning {
+  color: #fff;
+  background-color: $brand-warning;
+  border-color: darken($brand-warning, 5%);
+
+  @include button-states($brand-warning);
+}
+
+.button-link {
+  background-color: transparent;
+  border: none;
+
+  &:hover, &.hover,
+  &:active, &.active,
+  &:focus, &.focus,
+  &:focus:active {
+    box-shadow: none;
+    color: darken($brand-primary, 10%);
+  }
+}

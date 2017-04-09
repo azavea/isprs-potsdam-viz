@@ -1,0 +1,17 @@
+- src: azavea.pip
+  version: 0.1.1
+
+- src: azavea.docker
+  version: 2.2.0
+
+- src: azavea.unzip
+  version: 0.1.2
+
+- src: azavea.ntp
+  version: 0.1.1
+
+- src: azavea.terraform
+  version: 0.3.1
+
+- src: azavea.aws-cli
+  version: 0.1.0

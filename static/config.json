@@ -1,0 +1,12 @@
+{
+    "title" : "Libya Model",
+    "weightedOverlay": {
+        "numBreaks" : "10",
+        "opacity"   : "0.75",
+        "ramp"      : "yellow-to-red-heatmap",
+        "layers" : [ { "name" : "elevation",
+                       "weight" : "1",
+                       "display" : "Elevation" }
+                   ]
+    }
+}

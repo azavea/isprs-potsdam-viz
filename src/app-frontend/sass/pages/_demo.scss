@@ -1,0 +1,336 @@
+.sidebar {
+  overflow-y: auto;
+  .button-group {
+    padding: 0 1rem;
+    margin: 1rem 0 0;
+    @include clearfix;
+    button {
+      margin: 0;
+      width: 50%;
+      border: 0;
+      float: left;
+      border-radius: 0;
+      color: #f5f8fa;
+      background-color: #465256;
+      &:first-child {
+        border-radius: 3px 0 0 3px;
+      }
+      &:last-child {
+        border-radius: 0 3px 3px 0;
+      }
+      &.active {
+        background-color: $brand-primary;
+      }
+    }
+  }
+  .sidebar-heading {
+    font-weight: $heading-font-weight;
+  }
+  &.options {
+    background-color: #1D2123;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    top: 0;
+    left: 0;
+    width: 30rem;
+    z-index: 2000;
+
+    .option-section {
+      padding: 1.5rem 1rem 0 1rem;
+      margin: 0 -1rem 1.5rem -1rem;
+      &:not(:first-child) {
+        border-top: 1px solid #404344;
+      }
+    }
+
+    label {
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+  }
+  &.analyze {
+    background-color: #262B2D;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    top: 0;
+    left: 30rem;
+    width: 20rem;
+    z-index: 3000;
+    &:not(.active) {
+      display: none;
+    }
+  }
+  .content {
+    padding: 1rem;
+  }
+  .tab-content {
+    &:not(.active) {
+      display: none;
+    }
+  }
+  label,
+  .label {
+    display: block;
+    opacity: 0.8;
+    &.primary {
+      margin-bottom: 1rem;
+    }
+    &.secondary {
+      font-size: 1rem;
+      text-transform: uppercase;
+      margin-top: 1.6rem;
+    }
+  }
+  .analyze-result {
+    margin: 1rem -1rem;
+    padding: 1rem;
+    border-top: 1px solid #404344;
+    label,
+    .label {
+      text-align: center;
+      margin-top: -0.7rem;
+      font-size: 1.3rem;
+    }
+  }
+  .analyze-spinner {
+      text-align: center;
+      margin-top: 10rem;
+  }
+}
+
+.analyze-number {
+  font-size: 4rem;
+  text-align: center;
+  font-weight: 400;
+}
+
+.analyze-description {
+  margin: 1rem -1rem;
+  padding: 1rem;
+  border-top: 1px solid #404344;
+  &:not(.active) {
+    display: none;
+  }
+}
+
+.analyze-result-wrapper {
+  &:not(.active) {
+    display: none;
+  }
+}
+
+.button-analyze {
+  background-color: $brand-primary;
+  position: absolute;
+  left: 30rem;
+  margin-left: 1rem;
+  top: 0;
+  margin-top: 1rem;
+  z-index: 2500;
+  color: #f5f8fa;
+  padding: 0.6rem 1rem;
+  font-size: 1.8rem;
+  border: 0;
+  border-radius: 3px;
+  // Added because I thought it looked good over the map (like leaflet draw buttons).
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.74);
+
+}
+
+header {
+  &.tabs {
+    background-color: #465256;
+    @include clearfix;
+  }
+  .tab {
+    width: 50%;
+    float: left;
+    padding: 1rem;
+    &.active {
+      background-color: #1D2123;
+      font-weight: $heading-font-weight;
+    }
+    &:not(.active) {
+      color: #B5BABB;
+      cursor: pointer;
+    }
+  }
+  .analyze & {
+    padding: 1.4rem 1rem;
+
+    .button-cancel {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      background: transparent;
+      background-color: transparent;
+      border: 0;
+      & > .icon-cancel {
+        color: #f5f8fa;
+      }
+    }
+  }
+}
+
+// This is an attempt to overwrite the
+// style to the tabs,
+// which are styled via blueprint's css
+
+.main-tabs {
+  @include clearfix;
+  border-bottom: 2px solid rgb(64, 67, 68);
+}
+
+.pt-tab {
+  float: left;
+  padding: 0;
+  margin: 1rem;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-bottom: 1.2rem;
+  margin-bottom: 0;
+
+  &[aria-selected="true"] {
+    background-color: #1D2123;
+    font-weight: $heading-font-weight;
+    border-radius: 0;
+    box-shadow: 0 2px #20bebf !important;
+  }
+
+  &:not([aria-selected="true"]) {
+    color: #B5BABB;
+    cursor: pointer;
+  }
+}
+
+#map1 {
+  background-color: #cccccc;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  top: 0;
+  left: 30rem;
+  z-index: 1000;
+}
+
+
+.draw-buttons {
+  padding: 0 1rem;
+}
+
+.pt-dark {
+  .pt-slider-progress {
+    background-color: $brand-primary;
+  }
+
+  .pt-tab[aria-selected="true"], .pt-tab:not([aria-disabled="true"]):hover {
+    color: #f5f8fa;
+  }
+
+  .pt-tab:not(:last-of-type) {
+    margin-right: 0;
+  }
+
+  .pt-tab-indicator {
+    display: none !important;
+  }
+
+  .pt-tab {
+    outline: none;
+    font-size: inherit !important;
+    &:not(:last-of-type) {
+        margin-right: 0.6rem;
+    }
+    &[aria-selected="true"] span {
+      background-color: #1D2123;
+      font-weight: 800;
+      border-radius: 0;
+    }
+  }
+
+  .pt-button {
+    background: transparent !important;
+    background-color: #465256 !important;
+    color: #f5f8fa !important;
+    font-size: inherit !important;
+    min-height: 32px;
+    line-height: 32px;
+    &.pt-active {
+      background-color: $brand-primary !important;
+      font-weight: 600 !important;
+    }
+  }
+
+  .pt-slider-track {
+    background-color: #465256;
+  }
+
+  .pt-slider-handle {
+    background: transparent;
+    background-color: #DAE9F0;
+    border-radius: 100%;
+    &:hover, &.pt-active {
+      background-color: darken(#DAE9F0, 10%);
+    }
+  }
+
+  .pt-tab-panel {
+      margin-top: 0px;
+  }
+}
+
+@import
+  "../node_modules/leaflet-draw/dist/leaflet.draw.css";
+
+.leaflet-draw {
+    top: 1rem;
+    left: 21rem;
+
+    .leaflet-draw-draw-polygon.leaflet-disabled {
+        cursor: default;
+    }
+
+    .leaflet-draw-toolbar {
+        box-shadow: none;
+        border-radius: 0px;
+
+        button {
+            font-weight: 600 !important;
+            border-radius: 4px;
+            background-image: none;
+            display: inline-block;
+            height: 30px;
+            width: auto;
+            margin-right: 10px;
+            padding: 2px 10px;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.74);
+
+            &.leaflet-draw-draw-geom {
+                color: #f5f8fa;
+                background-color: $brand-primary;
+                background-image: none;
+                border-color: $brand-primary;
+                &.leaflet-disabled {
+                    color: #B5BABB;
+                    background-color: #465256 !important;
+                    border-color: #465256 !important;
+                }
+            }
+
+            &.leaflet-draw-edit-remove {
+                color: #f5f8fa;
+                background-color: $brand-primary;
+                border-color: #ac2925;
+                background-image: none;
+
+                &.leaflet-disabled {
+                    color: #B5BABB;
+                    background-color: #465256 !important;
+                    border-color: transparent;
+                }
+            }
+        }
+    }
+}

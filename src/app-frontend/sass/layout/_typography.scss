@@ -1,0 +1,70 @@
+/* * * *
+ * Typography
+ * * * */
+body {
+  font-size: $font-size-body;
+  line-height: $body-line-height;
+  color: $body-font-color;
+  font-family: $body-font-family;
+  font-weight: $body-font-weight;
+}
+
+h1, .h1, .text-h1 {
+  font-size: $font-size-h1;
+}
+
+h2, .h2, .text-h2 {
+  font-size: $font-size-h2;
+}
+
+h3, .h3, .text-h3 {
+  font-size: $font-size-h3;
+}
+
+h4, .h4, .text-h4 {
+  font-size: $font-size-h4;
+}
+
+h5, .h5, .text-h5 {
+  font-size: $font-size-h5;
+}
+
+h6, .h6, .text-h6 {
+  font-size: $font-size-h6;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  line-height: $heading-line-height;
+  color: $heading-font-color;
+  font-family: $heading-font-family;
+  margin-top: $heading-margin-top;
+  margin-bottom: $heading-margin-bottom;
+  font-weight: $heading-font-weight;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: $paragraph-margin;
+}
+
+small, .small {
+  font-size: 85%;
+}
+
+em {
+  font-style: italic;
+}
+
+strong {
+  font-weight: bold;
+}
+
+ul, ol, dt {
+  margin-top: 0;
+  margin-bottom: $paragraph-margin;
+}
+
+pre, code {
+  font-family: $monospace-font-family;
+}

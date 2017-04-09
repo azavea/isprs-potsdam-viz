@@ -1,0 +1,108 @@
+// Modal, Bootstrap
+
+.button-modal-close {
+  color: $gray-4;
+  float: right;
+  border: 0;
+  margin-right: -1.5rem;
+  font-size: $modal-font-size;
+  margin-top: -1.0rem;
+  padding-right: 1.0rem;
+  padding-left: 1rem;
+  &:hover,
+  &:active,
+  &:focus {
+    background-color: transparent;
+    color: $gray-5;
+  }
+}
+
+.modal-dialog {
+  position: relative;
+  max-width: $modal-width;
+  margin: 2rem auto;
+  .modal-large & {
+    max-width: $modal-width-large;
+  }
+  .modal-small & {
+    max-width: $modal-width-small;
+  }
+  @include respond-to(xxs) {
+    margin: 1rem;
+  }
+}
+
+.modal-open {
+  overflow: hidden;
+}
+
+.modal-open .modal {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.modal {
+  display: none;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1050;
+  outline: 0;
+}
+
+.modal-content {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: $modal-border-radius;
+  background-clip: padding-box;
+  outline: 0;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  background-color: #000000;
+}
+
+.modal-backdrop.in {
+  opacity: 0.5;
+}
+
+.modal-title {
+  margin-top: 0;
+}
+
+.modal-header {
+  padding: $modal-heading-padding;
+  border-bottom: 1px solid $gray-1;
+  @include clearfix;
+}
+
+.modal-body {
+  position: relative;
+  padding: $modal-body-padding;
+}
+
+.modal-footer {
+  padding: $modal-footer-padding;
+  text-align: right;
+  border-top: 1px solid $gray-1;
+  @include clearfix;
+}
+
+.modal-scrollbar-measure {
+  position: absolute;
+  top: -9999px;
+  width: 50px;
+  height: 50px;
+  overflow: scroll;
+}
+
+

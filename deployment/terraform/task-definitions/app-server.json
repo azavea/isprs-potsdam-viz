@@ -1,0 +1,30 @@
+[
+  {
+        "cpu": 10,
+        "essential": true,
+        "image": "${nginx_image_url}",
+        "links": [
+            "api-server:api-server"
+        ],
+        "memory": 512,
+        "name": "nginx",
+        "portMappings": [
+            {
+                "containerPort": 80,
+                "hostPort": 80
+            }
+        ]
+    },
+    {
+        "name": "api-server",
+        "image": "${api_server_image_url}",
+        "cpu": 1024,
+        "memoryReservation": 2048,
+        "essential": true,
+        "command": [
+            "-Xmx1536m",
+            "-jar",
+            "pointcloud-server.jar"
+        ]
+    }
+]

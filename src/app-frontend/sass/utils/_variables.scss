@@ -1,0 +1,194 @@
+/* * * *
+ * Screen Sizes
+ * Used in _mixins.scss > @mixin respond-to($breakpoint)
+ * * * */
+$breakpoints: (
+
+  'xxs': (max-width: 480px),
+
+  'xs': (max-width: 767px),
+
+  'sm': "(min-width: 768px) and (max-width: 991px)",
+  'sm-up': (min-width: 768px),
+  'sm-down': (max-width: 991px),
+
+  'md': "(min-width: 992px) and (max-width: 1200px)",
+  'md-up': (min-width: 992px),
+  'md-down': (max-width: 1200px),
+
+  'lg': (min-width: 1201px),
+);
+
+
+/* * * *
+ * Settings
+ *
+ * * * */
+$leaflet-control-attribution-on: false;
+
+
+/* * * *
+ * Colors
+ *
+ * * * */
+$brand-primary: #20BEBF;
+$brand-secondary: #6972B5;
+$brand-danger: #DA4460;
+$brand-warning: #E7A938;
+
+$border-color: #ddd;
+
+$gray-1: #eee;
+$gray-2: #ccc;
+$gray-3: #999;
+$gray-4: #666;
+$gray-5: #222;
+
+
+/* * * *
+ * Layout
+ *
+ * * * */
+
+ $padding-unit: 1rem;
+
+
+/* * * *
+ * z-index
+ *
+ * * * */
+$zindex-popover: 1060;
+$zindex-map-attribution: 2040;
+
+/* * * *
+ * Columns
+ * * * */
+$column-count: 12;
+$column-padding: 1rem;
+
+
+/* * * *
+ * Typography
+ *
+ * * * */
+
+$modular-scale: 1.25;
+
+$font-size-base: 1.5rem;
+
+$link-color: $brand-primary;
+
+$font-size-body: $font-size-base;
+$body-line-height: 1.5;
+$body-font-color: #fff;
+$body-font-weight: 300;
+$body-font-family: "Libre Franklin", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+
+$monospace-font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+
+$font-size-h1: $font-size-base * exponential($modular-scale, 5);
+$font-size-h2: $font-size-base * exponential($modular-scale, 4);
+$font-size-h3: $font-size-base * exponential($modular-scale, 3);
+$font-size-h4: $font-size-base * exponential($modular-scale, 2);
+$font-size-h5: $font-size-base;
+$font-size-h6: $font-size-base / $modular-scale;
+$heading-line-height: 1.2;
+$heading-font-color: #fff;
+$heading-font-weight: 800;
+$heading-font-family: "Libre Franklin", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+$heading-margin-top: 3rem;
+$heading-margin-bottom: 1.4rem;
+
+$paragraph-margin: 1.4rem;
+
+
+/* * * *
+ * Map Components
+ *
+ * * * */
+$map-attribution-font-size: 12px;
+$map-attribution-font-color: $body-font-color;
+
+
+/* * * *
+ * Loading
+ *
+ * * * */
+$loading-dimension: 3rem;
+$loading-dimension-large: 8rem;
+$loading-dimension-small: 1.7rem;
+
+
+/* * * *
+ * Button
+ *
+ * * * */
+$button-border-radius: 3px;
+$button-padding-vertical: 0.6rem;
+$button-padding-horizontal: 1.4rem;
+
+
+/* * * *
+ * Dropdown
+ *
+ * * * */
+$dropdown-menu-border-radius: $button-border-radius;
+
+
+/* * * *
+ * Tooltip
+ *
+ * * * */
+$tooltip-font-family: $body-font-family;
+$tooltip-font-size: $font-size-h6;
+$tooltip-padding-vertical: 0.4rem;
+$tooltip-padding-horizontal: 0.8rem;
+$tooltip-color: #000;
+$tooltip-arrow-width: 0.4rem;
+$tooltip-arrow-height: 0.5rem;
+
+
+/* * * *
+ * Modal
+ *
+ * * * */
+$modal-font-size: $font-size-h6;
+$modal-width: 60rem;
+$modal-width-large: 80rem;
+$modal-width-small: 50rem;
+$modal-heading-padding: 1.5rem;
+$modal-body-padding: 2.5rem;
+$modal-footer-padding: 1.5rem;
+$modal-border-radius: 4px;
+
+
+/* * * *
+ * Alert
+ *
+ * * * */
+$alert-padding-vertical: 1.4rem;
+$alert-padding-horizontal: 1.8rem;
+$alert-border-radius: 3px;
+$alert-ghost-style: true;
+$alert-font-size: $font-size-body;
+$alert-heading-font-size: $font-size-body;
+$alert-heading-font-weight: $heading-font-weight;
+$alert-font-color: #fff;
+
+
+/* * * *
+ * Popover
+ *
+ * * * */
+$popover-padding-vertical: 0.9rem;
+$popover-padding-horizontal: 1.4rem;
+$popover-border-radius: 3px;
+$popover-font-size: $font-size-body;
+$popover-heading-font-size: $font-size-body;
+$popover-font-color: $heading-font-color;
+$popover-background-color: #fff;
+$popover-margin: 7px;
+$popover-max-width: 28rem;
+$popover-box-shadow: 2px 2px 20px rgba(0,0,0,.09);
+$popover-border: 1px solid rgba(0,0,0,.15);
+$popover-arrow: 8px;

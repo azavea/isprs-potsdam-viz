@@ -1,0 +1,106 @@
+/* * * *
+ * Spacing
+ * * * */
+
+@include generate-padding;
+@include generate-margin;
+
+/* * * *
+ * Font & Text
+ * * * */
+
+.font-normal {
+  font-weight: normal;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.font-italic {
+  font-style: italic;
+}
+
+.text-uppercase {
+  text-transform: uppercase;
+}
+
+.text-lowercase {
+  text-transform: lowercase;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
+
+.text-center {
+  text-align: center
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* * * *
+ * Color
+ * * * */
+
+.color-white {
+  color: #fff;
+}
+
+.color-primary {
+  color: $brand-primary;
+}
+
+.color-secondary {
+  color: $brand-secondary;
+}
+
+.color-warning {
+  color: $brand-warning;
+}
+
+.color-danger {
+  color: $brand-danger;
+}
+
+.background-white {
+  background-color: #fff;
+}
+
+.background-primary {
+  background-color: $brand-primary;
+}
+
+.background-secondary {
+  background-color: $brand-secondary;
+}
+
+.background-warning {
+  background-color: $brand-warning;
+}
+
+.background-danger {
+  background-color: $brand-danger;
+}
+
+/* * * *
+ * Layout
+ * * * */
+
+.float-left {
+  float: left;
+}
+
+.float-right {
+  float: right;
+}
+
+.hidden {
+  display: none;
+}

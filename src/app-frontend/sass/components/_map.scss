@@ -1,0 +1,61 @@
+.leaflet-container {
+    flex: 1;
+}
+
+.fa-map-marker:before {
+    content: '\e825'; // icon-location
+}
+
+.fa-spinner:before {
+    content: '\e80e'; // icon-target
+}
+
+.leaflet-container {
+  .leaflet-bar {
+    .leaflet-control-zoom-out,
+    .leaflet-control-zoom-in,
+    a {
+      background-color: #666666;
+      border-radius: 0;
+      color: #fff;
+    }
+  }
+}
+
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+  border: none;
+}
+
+// Adjusted from https://github.com/Leaflet/Leaflet.fullscreen/blob/gh-pages/dist/leaflet.fullscreen.css
+.leaflet-container {
+    &:-webkit-full-screen {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    &.leaflet-fullscreen-on {
+        width: 100% !important;
+        height: 100% !important;
+    }
+}
+
+.leaflet-pseudo-fullscreen {
+    position: fixed !important;
+    width: 100% !important;
+    height: 100% !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 9999;
+}
+
+.leaflet-control-fullscreen-button::before {
+    font-family: "mantle";
+    content: '\e851'; // icon-resize-full
+}
+
+.leaflet-fullscreen-on {
+    .leaflet-control-fullscreen-button::before {
+        content: '\e854'; // icon-resize-small
+    }
+}
