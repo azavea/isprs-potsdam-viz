@@ -2,10 +2,8 @@ include config-aws.mk # Vars related to AWS credentials and services used
 include config-emr.mk # Vars related to type and size of EMR cluster
 include config-run.mk # Vars related to ingest step and spark parameters
 
-POINTCLOUD_INGEST_ASSEMBLY := src/app-backend/ingest/target/scala-2.11/pointcloud-ingest-assembly-0.1.0-SNAPHOST.jar
-POINTCLOUD_SERVER_ASSEMBLY := src/app-backend/server/target/scala-2.11/pointcloud-server-assembly-0.1.0-SNAPHOST.jar
-SCRIPT_RUNNER := s3://elasticmapreduce/libs/script-runner/script-runner.jar
-STATIC := ./static
+RVVIZ_INGEST_ASSEMBLY_NAME := rv-ingest.jar
+RVVIZ_INGEST_ASSEMBLY := src/app-backend/ingest/target/scala-2.11/${RVVIZ_INGEST_ASSEMBLY_NAME}
 
 ifeq ($(USE_SPOT),true)
 MASTER_BID_PRICE:=BidPrice=${MASTER_PRICE},
@@ -23,49 +21,35 @@ endif
 
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 
-${POINTCLOUD_INGEST_ASSEMBLY}: $(call rwildcard, src/app-backend/ingest/src, *.scala) src/app-backend/build.sbt
+${RVVIZ_INGEST_ASSEMBLY}: $(call rwildcard, src/app-backend/ingest/src, *.scala) src/app-backend/build.sbt
 	cd src/app-backend && ./sbt ingest/assembly -no-colors
-	@touch -m ${POINTCLOUD_INGEST_ASSEMBLY}
+	@touch -m ${RVVIZ_INGEST_ASSEMBLY}
 
-${POINTCLOUD_SERVER_ASSEMBLY}: $(call rwildcard, src/app-backend/server/src, *.scala) src/app-backend/build.sbt
-	cd src/app-backend && ./sbt server/assembly -no-colors
-	@touch -m ${POINTCLOUD_SERVER_ASSEMBLY}
-
-upload-code: ${POINTCLOUD_INGEST_ASSEMBLY} ${POINTCLOUD_SERVER_ASSEMBLY} deployment/emr/*
-	@aws s3 cp deployment/emr/bootstrap-pdal.sh ${S3_URI}/
-	@aws s3 cp ${POINTCLOUD_INGEST_ASSEMBLY} ${S3_URI}/
-	@aws s3 cp ${POINTCLOUD_SERVER_ASSEMBLY} ${S3_URI}/
-
-load-hdfs:
-	aws emr put --cluster-id ${CLUSTER_ID} --key-pair-file "${HOME}/${EC2_KEY}.pem" \
-	--src scripts/load-hdfs.sh --dest /home/hadoop
-	aws emr ssh --cluster-id ${CLUSTER_ID} --key-pair-file "${HOME}/${EC2_KEY}.pem" \
-	--command /home/hadoop/load-hdfs.sh
+upload-code: ${RVVIZ_INGEST_ASSEMBLY} ${RVVIZ_SERVER_ASSEMBLY} deployment/emr/*
+	@aws s3 cp ${RVVIZ_INGEST_ASSEMBLY} ${S3_URI}/
 
 load-local:
 	scripts/load-local.sh
 
 create-cluster:
 	aws emr create-cluster --name "${NAME}" ${COLOR_TAG} \
---release-label emr-5.2.0 \
+--release-label emr-5.4.0 \
 --output text \
 --use-default-roles \
---configurations "file://$(CURDIR)/scripts/configurations.json" \
+--configurations "file://$(CURDIR)/deployment/emr/configurations.json" \
 --log-uri ${S3_URI}/logs \
 --ec2-attributes KeyName=${EC2_KEY},SubnetId=${SUBNET_ID} \
 --applications Name=Ganglia Name=Hadoop Name=Hue Name=Spark Name=Zeppelin \
 --instance-groups \
 'Name=Master,${MASTER_BID_PRICE}InstanceCount=1,InstanceGroupType=MASTER,InstanceType=${MASTER_INSTANCE}' \
 'Name=Workers,${WORKER_BID_PRICE}InstanceCount=${WORKER_COUNT},InstanceGroupType=CORE,InstanceType=${WORKER_INSTANCE}' \
---bootstrap-actions \
-Name=BootstrapPDAL,Path=${S3_URI}/bootstrap-pdal.sh \
 | tee cluster-id-${EMR_TAG}.txt
 
-ingest-idw:
+ingest-dsm:
 	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
---steps Type=CUSTOM_JAR,Name="IngestIDWPyramid",Jar=command-runner.jar,Args=[\
+--steps Type=CUSTOM_JAR,Name="IngestDEM",Jar=command-runner.jar,Args=[\
 spark-submit,--master,yarn-cluster,\
---class,com.azavea.pointcloud.ingest.IngestIDWPyramid,\
+--class,rastervision.viz.ingest.Ingest,\
 --driver-memory,${DRIVER_MEMORY},\
 --driver-cores,${DRIVER_CORES},\
 --executor-memory,${EXECUTOR_MEMORY},\
@@ -74,20 +58,19 @@ spark-submit,--master,yarn-cluster,\
 --conf,spark.dynamicAllocation.enabled=true,\
 --conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
 --conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
-${S3_URI}/pointcloud-ingest-assembly-0.1.0-SNAPHOST.jar,\
---inputPath,/data/test/SHCZO_Jul10/,\
---inputCrs,'+proj=utm +zone=18 +datum=NAD83 +units=m +no_defs',\
---numPartitions,50000,\
---persist,false,\
---pyramid,false,\
---zoomed,false\
+${S3_URI}/${RVVIZ_INGEST_ASSEMBLY_NAME},\
+--inputPath,${INPUT_DSM},\
+--catalogPath,${S3_CATALOG},\
+--layerPrefix,"isprs-potsdam-dsm",\
+--type,"DSM",\
+--numPartitions,2000\
 ] | cut -f2 | tee last-step-id.txt
 
-ingest-idw-jul10:
+ingest-rgbir:
 	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
---steps Type=CUSTOM_JAR,Name="IngestIDWPyramid",Jar=command-runner.jar,Args=[\
+--steps Type=CUSTOM_JAR,Name="IngestRGBIR",Jar=command-runner.jar,Args=[\
 spark-submit,--master,yarn-cluster,\
---class,com.azavea.pointcloud.ingest.IngestIDWPyramid,\
+--class,rastervision.viz.ingest.Ingest,\
 --driver-memory,${DRIVER_MEMORY},\
 --driver-cores,${DRIVER_CORES},\
 --executor-memory,${EXECUTOR_MEMORY},\
@@ -96,22 +79,19 @@ spark-submit,--master,yarn-cluster,\
 --conf,spark.dynamicAllocation.enabled=true,\
 --conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
 --conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
-${S3_URI}/pointcloud-ingest-assembly-0.1.0-SNAPHOST.jar,\
---inputPath,${S3_POINTCLOUD_PATH}/JRB_10_Jul_subset/,\
+${S3_URI}/${RVVIZ_INGEST_ASSEMBLY_NAME},\
+--inputPath,${INPUT_RGBIR},\
 --catalogPath,${S3_CATALOG},\
---inputCrs,'+proj=utm +zone=13 +datum=NAD83 +units=m +no_defs',\
---layerName,jul10idw,\
---numPartitions,5000,\
---persist,true,\
---pyramid,true,\
---zoomed,true\
+--layerPrefix,"isprs-potsdam-imagery",\
+--type,"RGBIR",\
+--numPartitions,2000\
 ] | cut -f2 | tee last-step-id.txt
 
-ingest-idw-mar10:
+ingest-labels:
 	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
---steps Type=CUSTOM_JAR,Name="IngestIDWPyramid",Jar=command-runner.jar,Args=[\
+--steps Type=CUSTOM_JAR,Name="IngestLabels",Jar=command-runner.jar,Args=[\
 spark-submit,--master,yarn-cluster,\
---class,com.azavea.pointcloud.ingest.IngestIDWPyramid,\
+--class,rastervision.viz.ingest.Ingest,\
 --driver-memory,${DRIVER_MEMORY},\
 --driver-cores,${DRIVER_CORES},\
 --executor-memory,${EXECUTOR_MEMORY},\
@@ -120,219 +100,56 @@ spark-submit,--master,yarn-cluster,\
 --conf,spark.dynamicAllocation.enabled=true,\
 --conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
 --conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
-${S3_URI}/pointcloud-ingest-assembly-0.1.0-SNAPHOST.jar,\
---inputPath,${S3_POINTCLOUD_PATH}/JRB_10_Mar_subset/,\
+${S3_URI}/${RVVIZ_INGEST_ASSEMBLY_NAME},\
+--inputPath,${INPUT_LABEL},\
 --catalogPath,${S3_CATALOG},\
---inputCrs,'+proj=utm +zone=13 +datum=NAD83 +units=m +no_defs',\
---layerName,mar10idw,\
---numPartitions,5000,\
---persist,true,\
---pyramid,true,\
---zoomed,true\
+--layerPrefix,"isprs-potsdam-labels",\
+--type,"LABEL",\
+--numPartitions,2000\
 ] | cut -f2 | tee last-step-id.txt
 
-ingest-tin:
+ingest-fcn:
 	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
---steps Type=CUSTOM_JAR,Name="IngestTINPyramid",Jar=command-runner.jar,Args=[\
+--steps Type=CUSTOM_JAR,Name="IngestFCN",Jar=command-runner.jar,Args=[\
 spark-submit,--master,yarn-cluster,\
---class,com.azavea.pointcloud.ingest.IngestTINPyramid,\
+--class,rastervision.viz.ingest.Ingest,\
 --driver-memory,${DRIVER_MEMORY},\
 --driver-cores,${DRIVER_CORES},\
 --executor-memory,${EXECUTOR_MEMORY},\
 --executor-cores,${EXECUTOR_CORES},\
+--conf,spark.driver.maxResultSize=3g,\
 --conf,spark.dynamicAllocation.enabled=true,\
 --conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
 --conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
-${S3_URI}/pointcloud-ingest-assembly-0.1.0-SNAPHOST.jar,\
---inputPath,${POINTCLOUD_PATH},\
---inputCrs,'EPSG:20255',\
---maxValue,400\
-] | cut -f2 | tee last-step-id.txt
-
-ingest-tin-jul10:
-	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
---steps Type=CUSTOM_JAR,Name="IngestTINPyramid",Jar=command-runner.jar,Args=[\
-spark-submit,--master,yarn-cluster,\
---class,com.azavea.pointcloud.ingest.IngestTINPyramid,\
---driver-memory,${DRIVER_MEMORY},\
---driver-cores,${DRIVER_CORES},\
---executor-memory,${EXECUTOR_MEMORY},\
---executor-cores,${EXECUTOR_CORES},\
---conf,spark.dynamicAllocation.enabled=false,\
---conf,spark.executor.instances=${EXECUTOR_COUNT},\
---conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
---conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
-${S3_URI}/pointcloud-ingest-assembly-0.1.0-SNAPHOST.jar,\
---inputPath,${S3_POINTCLOUD_PATH}/JRB_10_Jul_subset/,\
+${S3_URI}/${RVVIZ_INGEST_ASSEMBLY_NAME},\
+--inputPath,${INPUT_RESULT_FCN},\
 --catalogPath,${S3_CATALOG},\
---inputCrs,'+proj=utm +zone=13 +datum=NAD83 +units=m +no_defs',\
---layerName,jul10tin,\
---numPartitions,${PARTITION_COUNT},\
---persist,true,\
---pyramid,true,\
---zoomed,true\
-] | cut -f2 | tee last-step-id.txt
-
-ingest-tin-mar10:
-	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
---steps Type=CUSTOM_JAR,Name="IngestTINPyramid",Jar=command-runner.jar,Args=[\
-spark-submit,--master,yarn-cluster,\
---class,com.azavea.pointcloud.ingest.IngestTINPyramid,\
---driver-memory,${DRIVER_MEMORY},\
---driver-cores,${DRIVER_CORES},\
---executor-memory,${EXECUTOR_MEMORY},\
---executor-cores,${EXECUTOR_CORES},\
---conf,spark.dynamicAllocation.enabled=false,\
---conf,spark.executor.instances=${EXECUTOR_COUNT},\
---conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
---conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
-${S3_URI}/pointcloud-ingest-assembly-0.1.0-SNAPHOST.jar,\
---inputPath,${S3_POINTCLOUD_PATH}/JRB_10_Mar_subset/,\
---catalogPath,${S3_CATALOG},\
---inputCrs,'+proj=utm +zone=13 +datum=NAD83 +units=m +no_defs',\
---layerName,mar10tin,\
---numPartitions,${PARTITION_COUNT},\
---persist,true,\
---pyramid,true,\
---zoomed,true\
-] | cut -f2 | tee last-step-id.txt
-
-ingest-tin-to-file:
-	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
---steps Type=CUSTOM_JAR,Name="IngestTINPyramid",Jar=command-runner.jar,Args=[\
-spark-submit,--master,yarn-cluster,\
---class,com.azavea.pointcloud.ingest.IngestTINPyramid,\
---driver-memory,${DRIVER_MEMORY},\
---driver-cores,${DRIVER_CORES},\
---executor-memory,${EXECUTOR_MEMORY},\
---executor-cores,${EXECUTOR_CORES},\
---conf,spark.dynamicAllocation.enabled=true,\
---conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
---conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
-${S3_URI}/pointcloud-ingest-assembly-0.1.0-SNAPHOST.jar,\
---inputPath,${POINTCLOUD_PATH},\
---inputCrs,'EPSG:20255',\
---persist,false,\
---pyramid,false,\
---zoomed,false,\
---testOutput,/tmp/test33.tif,\
---maxValue,400\
-] | cut -f2 | tee last-step-id.txt
-
-ingest-pc:
-	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
---steps Type=CUSTOM_JAR,Name="IngestPC",Jar=command-runner.jar,Args=[\
-spark-submit,--master,yarn-cluster,\
---class,com.azavea.pointcloud.ingest.IngestPC,\
---driver-memory,${DRIVER_MEMORY},\
---driver-cores,${DRIVER_CORES},\
---executor-memory,${EXECUTOR_MEMORY},\
---executor-cores,${EXECUTOR_CORES},\
---conf,spark.dynamicAllocation.enabled=true,\
---conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
---conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
-${S3_URI}/pointcloud-ingest-assembly-0.1.0-SNAPHOST.jar,\
---inputPath,${POINTCLOUD_PATH},\
---inputCrs,'+proj=utm +zone=13 +datum=NAD83 +units=m +no_defs'\
-] | cut -f2 | tee last-step-id.txt
-
-ingest-pc-mar10:
-	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
---steps Type=CUSTOM_JAR,Name="IngestPC",Jar=command-runner.jar,Args=[\
-spark-submit,--master,yarn-cluster,\
---class,com.azavea.pointcloud.ingest.IngestPC,\
---driver-memory,${DRIVER_MEMORY},\
---driver-cores,${DRIVER_CORES},\
---executor-memory,${EXECUTOR_MEMORY},\
---executor-cores,${EXECUTOR_CORES},\
---conf,spark.dynamicAllocation.enabled=true,\
---conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
---conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
-${S3_URI}/pointcloud-ingest-assembly-0.1.0-SNAPHOST.jar,\
---inputPath,${S3_POINTCLOUD_PATH}/JRB_10_Mar_subset/,\
---catalogPath,${S3_CATALOG},\
---inputCrs,'+proj=utm +zone=13 +datum=NAD83 +units=m +no_defs',\
---layerName,mar10pc,\
+--layerPrefix,"isprs-potsdam-fcn",\
+--type,"MODELRESULT",\
 --numPartitions,5000\
 ] | cut -f2 | tee last-step-id.txt
 
-ingest-pc-jul10:
+ingest-unet:
 	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
---steps Type=CUSTOM_JAR,Name="IngestPC",Jar=command-runner.jar,Args=[\
+--steps Type=CUSTOM_JAR,Name="IngestUNET",Jar=command-runner.jar,Args=[\
 spark-submit,--master,yarn-cluster,\
---class,com.azavea.pointcloud.ingest.IngestPC,\
+--class,rastervision.viz.ingest.Ingest,\
 --driver-memory,${DRIVER_MEMORY},\
 --driver-cores,${DRIVER_CORES},\
 --executor-memory,${EXECUTOR_MEMORY},\
 --executor-cores,${EXECUTOR_CORES},\
+--conf,spark.driver.maxResultSize=3g,\
 --conf,spark.dynamicAllocation.enabled=true,\
 --conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
 --conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
-${S3_URI}/pointcloud-ingest-assembly-0.1.0-SNAPHOST.jar,\
---inputPath,${S3_POINTCLOUD_PATH}/JRB_10_Jul_subset/,\
+${S3_URI}/${RVVIZ_INGEST_ASSEMBLY_NAME},\
+--inputPath,${INPUT_RESULT_UNET},\
 --catalogPath,${S3_CATALOG},\
---inputCrs,'+proj=utm +zone=13 +datum=NAD83 +units=m +no_defs',\
---layerName,jul10pc,\
+--layerPrefix,"isprs-potsdam-unet",\
+--type,"MODELRESULT",\
 --numPartitions,5000\
 ] | cut -f2 | tee last-step-id.txt
 
-ingest-pc-mar10-pyramid:
-	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
---steps Type=CUSTOM_JAR,Name="IngestPCPyramid",Jar=command-runner.jar,Args=[\
-spark-submit,--master,yarn-cluster,\
---class,com.azavea.pointcloud.ingest.IngestPCPyramid,\
---driver-memory,${DRIVER_MEMORY},\
---driver-cores,${DRIVER_CORES},\
---executor-memory,${EXECUTOR_MEMORY},\
---executor-cores,${EXECUTOR_CORES},\
---conf,spark.dynamicAllocation.enabled=true,\
---conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
---conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
---conf,spark.driver.extraJavaOptions='-XX:MaxJavaStackTraceDepth=-1',\
---conf,spark.executor.extraJavaOptions='-XX:MaxJavaStackTraceDepth=-1',\
-${S3_URI}/pointcloud-ingest-assembly-0.1.0-SNAPHOST.jar,\
---inputPath,${S3_POINTCLOUD_PATH}/JRB_10_Mar_subset/,\
---catalogPath,${S3_CATALOG},\
---inputCrs,'+proj=utm +zone=13 +datum=NAD83 +units=m +no_defs',\
---layerName,mar10pcpyr,\
---numPartitions,50000,\
---persist,true,\
---pyramid,true,\
---zoomed,true\
-] | cut -f2 | tee last-step-id.txt
-
-ingest-pc-jul10-pyramid:
-	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
---steps Type=CUSTOM_JAR,Name="IngestPCPyramid",Jar=command-runner.jar,Args=[\
-spark-submit,--master,yarn-cluster,\
---class,com.azavea.pointcloud.ingest.IngestPCPyramid,\
---driver-memory,${DRIVER_MEMORY},\
---driver-cores,${DRIVER_CORES},\
---executor-memory,${EXECUTOR_MEMORY},\
---executor-cores,${EXECUTOR_CORES},\
---conf,spark.dynamicAllocation.enabled=true,\
---conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
---conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
-${S3_URI}/pointcloud-ingest-assembly-0.1.0-SNAPHOST.jar,\
---inputPath,${S3_POINTCLOUD_PATH}/JRB_10_Jul_subset/,\
---catalogPath,${S3_CATALOG},\
---inputCrs,'+proj=utm +zone=13 +datum=NAD83 +units=m +no_defs',\
---layerName,jul10pcpyr,\
---numPartitions,50000,\
---persist,true,\
---pyramid,true,\
---zoomed,true\
-] | cut -f2 | tee last-step-id.txt
-
-run-server: ${POINTCLOUD_SERVER_ASSEMBLY}
-	aws emr put --cluster-id ${CLUSTER_ID} --key-pair-file "${HOME}/${EC2_KEY}.pem" \
-	--src ${STATIC} --dest /tmp
-	aws emr put --cluster-id ${CLUSTER_ID} --key-pair-file "${HOME}/${EC2_KEY}.pem" \
-	--src ${POINTCLOUD_SERVER_ASSEMBLY} --dest /tmp
-	aws emr put --cluster-id ${CLUSTER_ID} --key-pair-file "${HOME}/${EC2_KEY}.pem" \
-	--src scripts/run-server.sh --dest /tmp
-	aws emr ssh --cluster-id ${CLUSTER_ID} --key-pair-file "${HOME}/${EC2_KEY}.pem" \
-	--command /tmp/run-server.sh
 
 wait: INTERVAL:=60
 wait: STEP_ID=$(shell cat last-step-id.txt)
@@ -362,33 +179,60 @@ proxy:
 ssh:
 	aws emr ssh --cluster-id ${CLUSTER_ID} --key-pair-file "${HOME}/${EC2_KEY}.pem"
 
-local-ingest-idw: ${POINTCLOUD_INGEST_ASSEMBLY}
-	spark-submit --name "IDW Ingest ${NAME}" --master "local[4]" --driver-memory 4G --class com.azavea.pointcloud.ingest.IngestIDWPyramid \
+local-ingest-dsm: ${RVVIZ_INGEST_ASSEMBLY}
+	spark-submit --name "DEM Ingest ${NAME}" --master "local[4]" --driver-memory 4G --class rastervision.viz.ingest.Ingest \
 	--conf spark.driver.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
 	--conf spark.executor.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
-	${POINTCLOUD_INGEST_ASSEMBLY} \
-	--inputPath ${LOCAL_POINTCLOUD_PATH} \
+	${RVVIZ_INGEST_ASSEMBLY} \
+	--inputPath ${LOCAL_DSM_PATH} \
 	--catalogPath ${LOCAL_CATALOG} \
-	--inputCrs '+proj=utm +zone=13 +datum=NAD83 +units=m +no_defs'
+	--layerPrefix "isprs-potsdam-dsm" \
+	--numPartitions 50 \
+	--type "DSM"
 
-local-ingest-tin: ${POINTCLOUD_INGEST_ASSEMBLY}
-	spark-submit --name "TIN Ingest ${NAME}" --master "local[4]" --driver-memory 4G --class com.azavea.pointcloud.ingest.IngestTINPyramid \
+local-ingest-rgbir: ${RVVIZ_INGEST_ASSEMBLY}
+	spark-submit --name "RGBIR Ingest ${NAME}" --master "local[4]" --driver-memory 4G --class rastervision.viz.ingest.Ingest \
 	--conf spark.driver.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
 	--conf spark.executor.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
-	${POINTCLOUD_INGEST_ASSEMBLY} \
-	--inputPath ${LOCAL_POINTCLOUD_PATH} \
+	${RVVIZ_INGEST_ASSEMBLY} \
+	--inputPath ${LOCAL_RGBIR_PATH} \
 	--catalogPath ${LOCAL_CATALOG} \
-	--inputCrs '+proj=utm +zone=13 +datum=NAD83 +units=m +no_defs'
+	--layerPrefix "isprs-potsdam-imagery" \
+	--numPartitions 50 \
+	--type "RGBIR"
 
-local-webui-py3:
-	cd static; python -m http.server 8000
+local-ingest-labels: ${RVVIZ_INGEST_ASSEMBLY}
+	spark-submit --name "Label Ingest ${NAME}" --master "local[4]" --driver-memory 4G --class rastervision.viz.ingest.Ingest \
+	--conf spark.driver.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
+	--conf spark.executor.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
+	${RVVIZ_INGEST_ASSEMBLY} \
+	--inputPath ${LOCAL_LABEL_PATH} \
+	--catalogPath ${LOCAL_CATALOG} \
+	--layerPrefix "isprs-potsdam-labels" \
+	--numPartitions 50 \
+	--type "LABEL"
 
-local-webui-py2:
-	cd static; python -m SimpleHTTPServer 8000
+local-ingest-fcn: ${RVVIZ_INGEST_ASSEMBLY}
+	spark-submit --name "FCN Ingest ${NAME}" --master "local[4]" --driver-memory 4G --class rastervision.viz.ingest.Ingest \
+	--conf spark.driver.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
+	--conf spark.executor.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
+	${RVVIZ_INGEST_ASSEMBLY} \
+	--inputPath ${LOCAL_FCN_PATH} \
+	--catalogPath ${LOCAL_CATALOG} \
+	--layerPrefix "isprs-potsdam-fcn" \
+	--numPartitions 50 \
+	--type "MODELRESULT"
 
-local-run-server: ${POINTCLOUD_SERVER_ASSEMBLY}
-	spark-submit --name "IDW Ingest ${NAME}" --master "local[4]" --driver-memory 4G --class com.azavea.server.Main \
-	${POINTCLOUD_SERVER_ASSEMBLY}
+local-ingest-unet: ${RVVIZ_INGEST_ASSEMBLY}
+	spark-submit --name "UNET Ingest ${NAME}" --master "local[4]" --driver-memory 4G --class rastervision.viz.ingest.Ingest \
+	--conf spark.driver.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
+	--conf spark.executor.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
+	${RVVIZ_INGEST_ASSEMBLY} \
+	--inputPath ${LOCAL_UNET_PATH} \
+	--catalogPath ${LOCAL_CATALOG} \
+	--layerPrefix "isprs-potsdam-unet" \
+	--numPartitions 50 \
+	--type "MODELRESULT"
 
 get-logs:
 	@aws emr ssh --cluster-id $(CLUSTER_ID) --key-pair-file "${HOME}/${EC2_KEY}.pem" \

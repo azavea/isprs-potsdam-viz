@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   nginx:
-    image: pointcloud-nginx:${GIT_COMMIT:-latest}
+    image: rastervision-nginx:${GIT_COMMIT:-latest}
     build:
       context: ./src/nginx
       dockerfile: Dockerfile
@@ -15,7 +15,7 @@ services:
     entrypoint: npm
     command: run bundle
   api-server:
-    image: pointcloud-api-server:${GIT_COMMIT:-latest}
+    image: rastervision-api-server:${GIT_COMMIT:-latest}
     build:
       context: ./src/app-backend/server
       dockerfile: Dockerfile

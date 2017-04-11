@@ -8,11 +8,17 @@ import {
 } from 'api';
 
 export const SET_ZOOM = "SET_ZOOM";
-export const SET_TARGET_LAYER = 'SET_TARGET_LAYER';
-export const SET_TARGET_LAYER_OPACITY = 'SET_TARGET_LAYER_OPACITY';
-export const SET_DATA_SOURCE_TYPE = 'SET_DATA_SOURCE_TYPE';
-export const SET_DEM_ALGORITHM = 'SET_DEM_ALGORITHM';
-export const SET_RENDER_METHOD = 'SET_RENDER_METHOD';
+export const SET_IMAGERY_TYPE = "SET_IMAGERY_TYPE";
+export const SET_IMAGERY_OPACITY = "SET_IMAGERY_OPACITY";
+export const SET_DSM_TYPE = "SET_DSM_TYPE";
+export const SET_DSM_OPACITY = "SET_DSM_OPACITY";
+export const SET_LABELS_TYPE = "SET_LABELS_TYPE";
+export const SET_LABELS_OPACITY = "SET_LABELS_OPACITY";
+export const SET_MODEL_PREDICTION_TYPE = "SET_MODEL_PREDICTION_TYPE";
+export const SET_MODEL_PREDICTION_OPACITY = "SET_MODEL_PREDICTION_OPACITY";
+export const SET_MODEL_PROBABILITIES_TYPE = "SET_MODEL_PROBABILITIES_TYPE";
+export const SET_MODEL_PROBABILITIES_OPACITY = "SET_MODEL_PROBABILITIES_OPACITY";
+export const SET_MODEL_PROBABILITIES_LABEL = "SET_MODEL_PROBABILITIES_LABEL";
 export const CLEAR_GEOMETRIES = 'CLEAR_GEOMETRIES';
 export const SET_POLYGON = 'SET_POLYGON';
 export const SET_POINT = 'SET_POINT';
@@ -29,38 +35,80 @@ export function setZoom(zoom) {
     };
 }
 
-export function setTargetLayerName(layerName) {
+export function setImageryType(layerType) {
     return {
-        type: SET_TARGET_LAYER,
-        payload: layerName,
+        type: SET_IMAGERY_TYPE,
+        payload: layerType
     };
 }
 
-export function setTargetLayerOpacity(value) {
+export function setImageryOpacity(value) {
     return {
-        type: SET_TARGET_LAYER_OPACITY,
-        payload: value,
+        type: SET_IMAGERY_OPACITY,
+        payload: value
     };
 }
 
-export function setDataSourceType(dsType) {
+export function setDsmType(layerType) {
     return {
-        type: SET_DATA_SOURCE_TYPE,
-        payload: dsType,
+        type: SET_DSM_TYPE,
+        payload: layerType
     };
 }
 
-export function setRenderMethod(method) {
+export function setDsmOpacity(value) {
     return {
-        type: SET_RENDER_METHOD,
-        payload: method,
+        type: SET_DSM_OPACITY,
+        payload: value
     };
 }
 
-export function setDEMAlgorithm(method) {
+export function setLabelsType(layerType) {
     return {
-        type: SET_DEM_ALGORITHM,
-        payload: method
+        type: SET_LABELS_TYPE,
+        payload: layerType
+    };
+}
+
+export function setLabelsOpacity(value) {
+    return {
+        type: SET_LABELS_OPACITY,
+        payload: value
+    };
+}
+
+export function setModelPredictionType(modelId, layerType) {
+    return {
+        type: SET_MODEL_PREDICTION_TYPE,
+        payload: { modelId: modelId, layerType: layerType }
+    };
+}
+
+export function setModelPredictionOpacity(modelId, value) {
+    return {
+        type: SET_MODEL_PREDICTION_OPACITY,
+        payload: { modelId: modelId, opacity: value }
+    };
+}
+
+export function setModelProbabilitiesType(modelId, layerType) {
+    return {
+        type: SET_MODEL_PROBABILITIES_TYPE,
+        payload: { modelId: modelId, layerType: layerType }
+    };
+}
+
+export function setModelProbabilitiesOpacity(modelId, value) {
+    return {
+        type: SET_MODEL_PROBABILITIES_OPACITY,
+        payload: { modelId: modelId, opacity: value }
+    };
+}
+
+export function setModelProbabilitiesLabel(modelId, value) {
+    return {
+        type: SET_MODEL_PROBABILITIES_LABEL,
+        payload: { modelId: modelId, labelId: value }
     };
 }
 

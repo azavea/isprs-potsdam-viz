@@ -2,7 +2,7 @@
 
 set -e
 
-if [[ -n "${PC_DEMO_DEBUG}" ]]; then
+if [[ -n "${RV_DEBUG}" ]]; then
     set -x
 fi
 
@@ -32,11 +32,11 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         echo
     fi
 
-    if [[ -n "${PC_SETTINGS_BUCKET}" ]]; then
+    if [[ -n "${RV_SETTINGS_BUCKET}" ]]; then
         pushd "${TERRAFORM_DIR}"
 
         # Stop Terraform from trying to apply incorrect state across environments
-        if [ -f ".terraform/terraform.tfstate" ] && ! grep -q "${PC_SETTINGS_BUCKET}" ".terraform/terraform.tfstate"; then
+        if [ -f ".terraform/terraform.tfstate" ] && ! grep -q "${RV_SETTINGS_BUCKET}" ".terraform/terraform.tfstate"; then
             echo "ERROR: Incorrect target environment detected in Terraform state! Please run"
             echo "       the following command before proceeding:"
             echo
@@ -45,12 +45,12 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
            exit 1
         fi
 
-        aws s3 cp "s3://${PC_SETTINGS_BUCKET}/terraform/terraform.tfvars" "${PC_SETTINGS_BUCKET}.tfvars"
+        aws s3 cp "s3://${RV_SETTINGS_BUCKET}/terraform/terraform.tfvars" "${RV_SETTINGS_BUCKET}.tfvars"
 
         terraform remote config \
                   -backend="s3" \
                   -backend-config="region=us-east-1" \
-                  -backend-config="bucket=${PC_SETTINGS_BUCKET}" \
+                  -backend-config="bucket=${RV_SETTINGS_BUCKET}" \
                   -backend-config="key=terraform/state" \
                   -backend-config="encrypt=true"
 
@@ -67,18 +67,18 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
             plan)
                 terraform get -update
                 terraform plan \
-                          -var-file="${PC_SETTINGS_BUCKET}.tfvars" \
+                          -var-file="${RV_SETTINGS_BUCKET}.tfvars" \
                           -var="git_commit=${GIT_COMMIT}" \
-                          -out="${PC_SETTINGS_BUCKET}.tfplan"
+                          -out="${RV_SETTINGS_BUCKET}.tfplan"
                 ;;
             destroy)
                 terraform get -update
-                terraform destroy -var-file="${PC_SETTINGS_BUCKET}.tfvars"
+                terraform destroy -var-file="${RV_SETTINGS_BUCKET}.tfvars"
                 terraform remote push
                 ;;
             apply)
                 terraform get -update
-                terraform apply "${PC_SETTINGS_BUCKET}.tfplan"
+                terraform apply "${RV_SETTINGS_BUCKET}.tfplan"
                 terraform remote push
                 ;;
             *)
@@ -89,7 +89,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
 
         popd
     else
-        echo "ERROR: No PC_SETTINGS_BUCKET variable defined."
+        echo "ERROR: No RV_SETTINGS_BUCKET variable defined."
         exit 1
     fi
 fi

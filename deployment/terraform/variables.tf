@@ -1,9 +1,9 @@
 variable "project" {
-  default = "PointCloud Demo"
+  default = "Raster Vision"
 }
 
 variable "project_id" {
-  default = "PCDEMO"
+  default = "RV"
 }
 
 variable "environment" {}

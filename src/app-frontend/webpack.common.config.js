@@ -6,7 +6,7 @@ module.exports = {
     },
     output: {
         path: __dirname,
-        filename: 'pgw.communitymapping.[hash].js',
+        filename: 'rastervision.viz.[hash].js',
     },
     eslint: {
         configFile: '.eslintrc',
@@ -47,7 +47,8 @@ module.exports = {
         new HtmlWebpackPlugin({
             title: 'GeoTrellis Point Cloud Demo',
             filename: 'index.html',
-            template: 'template.html',
+            favicon: 'img/favicon.png',
+            template: 'template.html'
         }),
     ],
 };

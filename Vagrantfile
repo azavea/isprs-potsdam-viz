@@ -7,7 +7,6 @@ Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/trusty64"
 
   config.vm.synced_folder "~/.aws", "/home/vagrant/.aws"
-  config.vm.synced_folder "data", "/home/vagrant/data"
   config.vm.synced_folder "~/.ivy2", "/home/vagrant/.ivy2"
 
   config.vm.provider :virtualbox do |vb|

@@ -24,7 +24,7 @@
         "command": [
             "-Xmx1536m",
             "-jar",
-            "pointcloud-server.jar"
+            "rv-server.jar"
         ]
     }
 ]

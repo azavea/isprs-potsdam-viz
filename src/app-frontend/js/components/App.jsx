@@ -31,7 +31,7 @@ import {
     fetchDiffPolyStats
 } from './actions';
 
-/* import PGWLogo from '../../img/geotrellis-logo.png';*/
+import Favicon from '../../img/Favicon.png';
 
 class App extends Component {
     constructor(props) {
@@ -119,42 +119,36 @@ class App extends Component {
         return (
             <div className="flex-expand-column height-100percent mode-detail pt-dark">
                 <main>
-                    <button className="button-analyze" onClick={this.onAnalyzeClicked}>Analyze</button>
+                    {/* <button className="button-analyze" onClick={this.onAnalyzeClicked}>Analyze</button> */}
                     <div className="sidebar options">
-                        <Tabs
-                            onChange={this.onTabChanged}
-                            selectedTabIndex={activeTab}
+                        {/* <Tabs
+                        onChange={this.onTabChanged}
+                        selectedTabIndex={activeTab}
                         >
-                            <TabList className="main-tabs">
-                                <Tab><span>Single Layer</span></Tab>
-                                <Tab><span>Change Detection</span></Tab>
-                            </TabList>
-                            <TabPanel>
+                        <TabList className="main-tabs">
+                        <Tab><span>Single Layer</span></Tab>
+                        <Tab><span>Change Detection</span></Tab>
+                        </TabList>
+                        <TabPanel> */}
                                 <SingleLayer
                                     dispatch={dispatch}
-                                    idwChecked={singleLayer.idwChecked}
-                                    tinChecked={singleLayer.tinChecked}
-                                    staticChecked={singleLayer.staticChecked}
-                                    dynamicChecked={singleLayer.dynamicChecked}
-                                    targetLayerOpacity={singleLayer.targetLayerOpacity}
-                                    colorRampChecked={singleLayer.colorRampChecked}
-                                    hillshadeChecked={singleLayer.hillshadeChecked}
-                                    snowOnChecked={singleLayer.snowOnChecked}
-                                    snowOffChecked={singleLayer.snowOffChecked}
+                                    imagery={singleLayer.imagery}
+                                    dsm={singleLayer.dsm}
+                                    labels={singleLayer.labels}
+                                    models={singleLayer.models}
                                 />
-                            </TabPanel>
-                            <TabPanel>
+                                {/* </TabPanel>
+                                <TabPanel>
                                 <ChangeDetection
-                                    dispatch={dispatch}
-                                    idwChecked={changeDetection.idwChecked}
-                                    tinChecked={changeDetection.tinChecked}
-                                    staticChecked={changeDetection.staticChecked}
-                                    dynamicChecked={changeDetection.dynamicChecked}
-                                    targetLayerOpacity={changeDetection.targetLayerOpacity}
+                                dispatch={dispatch}
+                                idwChecked={changeDetection.idwChecked}
+                                tinChecked={changeDetection.tinChecked}
+                                staticChecked={changeDetection.staticChecked}
+                                dynamicChecked={changeDetection.dynamicChecked}
+                                targetLayerOpacity={changeDetection.targetLayerOpacity}
                                 />
-
-                            </TabPanel>
-                        </Tabs>
+                                </TabPanel>
+                                </Tabs> */}
                     </div>
 
                     <Analysis

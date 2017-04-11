@@ -13,7 +13,6 @@ trait Config {
 
   private val config = ConfigFactory.load()
   protected val httpConfig = config.as[HttpConfig]("http")
-  val staticPath = config.as[String]("server.static-path")
   val catalogPath = config.as[String]("server.catalog")
 
   lazy val isS3Catalog = try {

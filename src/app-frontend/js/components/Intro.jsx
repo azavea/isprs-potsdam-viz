@@ -5,7 +5,7 @@ import { browserHistory } from 'react-router';
 import { resetAddressData } from './actions';
 import Geocoder from '../geocoder';
 
-import PGWLogo from '../../img/geotrellis-logo.png';
+import GeoTrellisLogo from '../../img/geotrellis-logo.png';
 
 class Intro extends Component {
     componentDidMount() {
@@ -23,7 +23,7 @@ class Intro extends Component {
             <div className="flex-expand-column height-100percent mode-intro">
                 <header className="primary">
                     <div className="brand">
-                        <img src={PGWLogo} alt="PGW" />
+                        <img src={GeoTrellisLogo} alt="GeoTrellis" />
                     </div>
                 </header>
                 <main>

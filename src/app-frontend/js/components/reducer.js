@@ -4,11 +4,6 @@ import { defaultMapCenter } from 'constants';
 
 import {
     SET_ZOOM,
-    SET_TARGET_LAYER,
-    SET_TARGET_LAYER_OPACITY,
-    SET_DATA_SOURCE_TYPE,
-    SET_DEM_ALGORITHM,
-    SET_RENDER_METHOD,
     CLEAR_GEOMETRIES,
     SET_POLYGON,
     SET_POINT,
@@ -17,25 +12,67 @@ import {
     START_FETCH_STATS,
     END_FETCH_STATS,
     FAIL_FETCH_STATS,
+    SET_IMAGERY_TYPE,
+    SET_IMAGERY_OPACITY,
+    SET_DSM_TYPE,
+    SET_DSM_OPACITY,
+    SET_LABELS_TYPE,
+    SET_LABELS_OPACITY,
+    SET_MODEL_PREDICTION_TYPE,
+    SET_MODEL_PREDICTION_OPACITY,
+    SET_MODEL_PROBABILITIES_TYPE,
+    SET_MODEL_PROBABILITIES_OPACITY,
+    SET_MODEL_PROBABILITIES_LABEL
 } from './actions';
 
 
 const initAppPage = {
     activeTab: 0,
-    zoom: 12,
+    zoom: 15,
     singleLayer: {
-        active: true,
-        idwChecked: true,
-        tinChecked: false,
-        staticChecked: true,
-        dynamicChecked: false,
-        targetLayerOpacity: 0.9,
-        colorRampChecked: true,
+      active: true,
+      imagery: {
+        rgbChecked: true,
+        irrgChecked: false,
+        opacity: 1.0
+      },
+      dsm: {
+        colorRampChecked: false,
         hillshadeChecked: false,
-        snowOnChecked: true,
-        snowOffChecked: false,
-        renderMethod: "COLORRAMP",
-        targetLayerName: "SNOW-ON"
+        opacity: 1.0
+      },
+      labels: {
+        checked: false,
+        opacity: 1.0
+      },
+      models: {
+        unet: {
+          name: "UNET",
+          predictions: {
+            allChecked: true,
+            incorrectChecked: false,
+            opacity: 0.7
+          },
+          probabilities:  {
+            labelId: 1,
+            checked: false,
+            opacity: 0.9
+          }
+        },
+        fcn: {
+          name: "FCN",
+          predictions: {
+            allChecked: false,
+            incorrectChecked: false,
+            opacity: 0.7
+          },
+          probabilities:  {
+            labelId: 1,
+            checked: false,
+            opacity: 0.9
+          }
+        }
+      }
     },
     changeDetection: {
         active: false,
@@ -43,7 +80,7 @@ const initAppPage = {
         tinChecked: false,
         staticChecked: true,
         dynamicChecked: false,
-        targetLayerOpacity: 0.9,
+        targetLayerOpacity: 0.9
     },
     analysis: {
         analysisOn: false,
@@ -51,7 +88,7 @@ const initAppPage = {
         isFetching: false,
         fetchError: null,
         polygon: null,
-        point: null,
+        point: null
     },
     center: defaultMapCenter,
 };
@@ -89,51 +126,6 @@ export default function appPage(state = initAppPage, action) {
             newState = immutable.set(newState, 'analysis.polygon', null);
             newState = immutable.set(newState, 'analysis.point', action.payload);
             return newState;
-        case SET_TARGET_LAYER:
-            console.log("LAYER NAME: " + action.payload);
-            var snowOnChecked = action.payload == "SNOW-ON";
-            var snowOffChecked = action.payload == "SNOW-OFF";
-
-            newState = immutable.set(newState, 'singleLayer.targetLayerName', action.payload);
-            newState = immutable.set(newState, 'singleLayer.snowOnChecked', snowOnChecked);
-            newState = immutable.set(newState, 'singleLayer.snowOffChecked', snowOffChecked);
-            return newState;
-        case SET_TARGET_LAYER_OPACITY:
-            return immutable.set(newState, propForActiveTab(state, 'targetLayerOpacity'), action.payload);
-        case SET_DEM_ALGORITHM:
-            switch (action.payload) {
-                case 'IDW':
-                    newState = immutable.set(newState, propForActiveTab(state, 'idwChecked'), true);
-                    return immutable.set(newState, propForActiveTab(state, 'tinChecked'), false);
-                case 'TIN':
-                    newState = immutable.set(newState, propForActiveTab(state, 'idwChecked'), false);
-                    return immutable.set(newState, propForActiveTab(state, 'tinChecked'), true);
-                default:
-                    return newState;
-            }
-        case SET_DATA_SOURCE_TYPE:
-            switch (action.payload) {
-                case 'STATIC':
-                    newState = immutable.set(newState, propForActiveTab(state, 'staticChecked'), true);
-                    return immutable.set(newState, propForActiveTab(state, 'dynamicChecked'), false);
-                case 'DYNAMIC':
-                    newState = immutable.set(newState, propForActiveTab(state, 'staticChecked'), false);
-                    return immutable.set(newState, propForActiveTab(state, 'dynamicChecked'), true);
-                default:
-                    return newState;
-            }
-        case SET_RENDER_METHOD:
-            newState = immutable.set(newState, 'singleLayer.renderMethod', action.payload);
-            switch (action.payload) {
-                case 'COLORRAMP':
-                    newState = immutable.set(newState, 'singleLayer.colorRampChecked', true);
-                    return immutable.set(newState, 'singleLayer.hillshadeChecked', false);
-                case 'HILLSHADE':
-                    newState = immutable.set(newState, 'singleLayer.colorRampChecked', false);
-                    return immutable.set(newState, 'singleLayer.hillshadeChecked', true);
-                default:
-                    return newState;
-            }
         case SET_ANALYSIS_ON:
             newState = immutable.set(newState, 'analysis.analysisOn', action.payload);
             if(!action.payload) {
@@ -172,6 +164,93 @@ export default function appPage(state = initAppPage, action) {
                 newState = immutable.set(newState, 'analysis.fetchError', action.payload);
             }
             return newState;
+
+        // SINGLE LAYER
+
+        case SET_IMAGERY_TYPE:
+            // May be "NONE"
+            var rgbChecked = action.payload == "RGB";
+            var irrgChecked = action.payload == "IRRG";
+
+            newState = immutable.set(newState,
+                                     'singleLayer.imagery.rgbChecked',
+                                     rgbChecked);
+            newState = immutable.set(newState,
+                                     'singleLayer.imagery.irrgChecked',
+                                     irrgChecked);
+            return newState;
+        case SET_IMAGERY_OPACITY:
+            return immutable.set(newState,
+                                 'singleLayer.imagery.opacity',
+                                 action.payload);
+        case SET_DSM_TYPE:
+            // May be "NONE"
+            var colorRampChecked = action.payload == "COLORRAMP";
+            var hillshadeChecked = action.payload == "HILLSHADE";
+
+            newState = immutable.set(newState,
+                                     'singleLayer.dsm.colorRampChecked',
+                                     colorRampChecked);
+            newState = immutable.set(newState,
+                                     'singleLayer.dsm.hillshadeChecked',
+                                     hillshadeChecked);
+            return newState;
+        case SET_DSM_OPACITY:
+            return immutable.set(newState,
+                                 'singleLayer.dsm.opacity',
+                                 action.payload);
+        case SET_LABELS_TYPE:
+            // May be "NONE"
+            var checked = action.payload == "CHECKED";
+
+            newState = immutable.set(newState,
+                                     'singleLayer.labels.checked',
+                                     checked);
+            return newState;
+        case SET_LABELS_OPACITY:
+            return immutable.set(newState,
+                                 'singleLayer.labels.opacity',
+                                 action.payload);
+        case SET_MODEL_PREDICTION_TYPE:
+            var modelId = action.payload.modelId;
+            // May be "NONE"
+            var incorrectChecked = action.payload.layerType == "INCORRECT";
+            var allChecked = action.payload.layerType == "ALL";
+            console.log(" MODEL ID:" + modelId, "  TYPE: " + action.payload.layerType);
+            newState = immutable.set(newState,
+                                     'singleLayer.models.' + modelId + '.predictions.incorrectChecked',
+                                     incorrectChecked);
+            newState = immutable.set(newState,
+                                     'singleLayer.models.' + modelId + '.predictions.allChecked',
+                                     allChecked);
+            return newState;
+        case SET_MODEL_PREDICTION_OPACITY:
+            var modelId = action.payload.modelId;
+            return immutable.set(newState,
+                                 'singleLayer.models.' + modelId + '.predictions.opacity',
+                                 action.payload.opacity);
+        case SET_MODEL_PROBABILITIES_LABEL:
+            var modelId = action.payload.modelId;
+            var labelId = action.payload.labelId;
+            newState = immutable.set(newState,
+                                     'singleLayer.models.' + modelId + '.probabilities.labelId',
+                                     labelId);
+            /* console.log("NEW STATE LABELID: " + newState.singleLayer.models.*/
+            return newState;
+        case SET_MODEL_PROBABILITIES_TYPE:
+            var modelId = action.payload.modelId;
+            // May be "NONE"
+            var checked = action.payload.layerType == "CHECKED";
+
+            newState = immutable.set(newState,
+                                     'singleLayer.models.' + modelId + '.probabilities.checked',
+                                     checked);
+            return newState;
+        case SET_MODEL_PROBABILITIES_OPACITY:
+            var modelId = action.payload.modelId;
+            return immutable.set(newState,
+                                 'singleLayer.models.' + modelId + '.probabilities.opacity',
+                                 action.payload.opacity);
         default:
             console.log("UNKOWN ACTION: " + action.type);
             return newState;

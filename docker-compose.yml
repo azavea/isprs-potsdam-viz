@@ -1,17 +1,21 @@
 version: '2.1'
 services:
   nginx:
-    image: pointcloud-nginx
+    image: rfviz-nginx
     build:
       context: ./src/nginx
       dockerfile: Dockerfile
     ports:
       - "9100:80"
+    links:
+      - api-server
     volumes:
       - ./src/nginx/srv/dist:/srv/dist:ro
   app-frontend:
     image: node:6.9-slim
     working_dir: /usr/src
+    links:
+      - nginx
     ports:
       - "8284:8284"
     volumes:
@@ -26,10 +30,12 @@ services:
       - "9000:9000"
     volumes:
         - ./src/app-backend/:/opt/app-backend/
+        - ./data/catalog:/opt/catalog/
         - ./src/app-backend/.sbt:/root/.sbt
         - /home/vagrant/.ivy2/:/root/.ivy2
         - $HOME/.aws:/root/.aws:ro
     environment:
-      - AWS_DEFUALT_PROFILE=geotrellis
+      - AWS_PROFILE=open-tree-id
     working_dir: /opt/app-backend/
     entrypoint: ./sbt
+    command: ~server/reStart

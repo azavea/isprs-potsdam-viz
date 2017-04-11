@@ -36,28 +36,28 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
 
             # Build React application, which assembles the bundle within
             # the container image.
-            GIT_COMMIT="${GIT_COMMIT}" docker-compose \
-                      -f docker-compose.yml \
-                      -f docker-compose.test.yml \
-                      run --rm --no-deps app-frontend
+            # GIT_COMMIT="${GIT_COMMIT}" docker-compose \
+            #           -f docker-compose.yml \
+            #           -f docker-compose.test.yml \
+            #           run --rm --no-deps app-frontend
 
-            echo "Building container images"
-            GIT_COMMIT="${GIT_COMMIT}" docker-compose \
-                      -f "${DIR}/../docker-compose.yml" \
-                      -f "${DIR}/../docker-compose.test.yml"\
-                      build nginx api-server
+            # echo "Building container images"
+            # GIT_COMMIT="${GIT_COMMIT}" docker-compose \
+            #           -f "${DIR}/../docker-compose.yml" \
+            #           -f "${DIR}/../docker-compose.test.yml"\
+            #           build nginx api-server
 
             # # Evaluate the return value of the get-login subcommand, which
             # # is a docker login command with temporarily ECR credentials.
             eval "$(aws ecr get-login --region us-east-1)"
 
-            docker tag "pointcloud-nginx:${GIT_COMMIT}" \
-                   "${AWS_ECR_ENDPOINT}/pointcloud-nginx:${GIT_COMMIT}"
-            docker tag "pointcloud-api-server:${GIT_COMMIT}" \
-                   "${AWS_ECR_ENDPOINT}/pointcloud-api-server:${GIT_COMMIT}"
+            docker tag "rastervision-nginx:${GIT_COMMIT}" \
+                   "${AWS_ECR_ENDPOINT}/rastervision-nginx:${GIT_COMMIT}"
+            docker tag "rastervision-api-server:${GIT_COMMIT}" \
+                   "${AWS_ECR_ENDPOINT}/rastervision-api-server:${GIT_COMMIT}"
 
-            docker push "${AWS_ECR_ENDPOINT}/pointcloud-nginx:${GIT_COMMIT}"
-            docker push "${AWS_ECR_ENDPOINT}/pointcloud-api-server:${GIT_COMMIT}"
+            docker push "${AWS_ECR_ENDPOINT}/rastervision-nginx:${GIT_COMMIT}"
+            docker push "${AWS_ECR_ENDPOINT}/rastervision-api-server:${GIT_COMMIT}"
 
         else
             echo "ERROR: No AWS_ECR_ENDPOINT variable defined."

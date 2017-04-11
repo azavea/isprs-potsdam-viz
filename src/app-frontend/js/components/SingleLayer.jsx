@@ -3,174 +3,435 @@ import React, { Component, PropTypes } from 'react';
 import { Slider, Button, Tabs, TabList, TabPanel, Tab } from "@blueprintjs/core";
 
 import {
-    setTargetLayerOpacity,
-    setDataSourceType,
-    setTargetLayerName,
-    setRenderMethod,
-    setDEMAlgorithm
+    setImageryType,
+    setImageryOpacity,
+    setDsmType,
+    setDsmOpacity,
+    setLabelsType,
+    setLabelsOpacity,
+    setModelPredictionType,
+    setModelPredictionOpacity,
+    setModelProbabilitiesType,
+    setModelProbabilitiesOpacity,
+    setModelProbabilitiesLabel
 } from './actions';
 
 export default class SingleLayer extends Component {
     constructor() {
         super();
 
-        this.handleTargetLayerOpacityChange = this.handleTargetLayerOpacityChange.bind(this);
-        this.checkStatic = this.checkStatic.bind(this);
-        this.checkDynamic = this.checkDynamic.bind(this);
-        this.checkSnowOn = this.checkSnowOn.bind(this);
-        this.checkSnowOff = this.checkSnowOff.bind(this);
+        // Imagery
+
+        this.checkRgb = this.checkRgb.bind(this);
+        this.checkIrrg = this.checkIrrg.bind(this);
+        this.checkNoImagery = this.checkNoImagery.bind(this);
+        this.handleImageryOpacityChange = this.handleImageryOpacityChange.bind(this);
+
+        // DSM
+
         this.checkColorRamp = this.checkColorRamp.bind(this);
         this.checkHillshade = this.checkHillshade.bind(this);
-        this.checkIdw = this.checkIdw.bind(this);
-        this.checkTin = this.checkTin.bind(this);
+        this.checkNoDsm = this.checkNoDsm.bind(this);
+        this.handleDsmOpacityChange = this.handleDsmOpacityChange.bind(this);
+
+        // Labels
+
+        this.checkLabels = this.checkLabels.bind(this);
+        this.checkNoLabels = this.checkNoLabels.bind(this);
+        this.handleLabelsOpacityChange = this.handleLabelsOpacityChange.bind(this);
+
+        // Model Predictions
+
+        this.checkModelPredictionAllHandler = this.checkModelPredictionAllHandler.bind(this);
+        this.checkModelPredictionIncorrectHandler = this.checkModelPredictionIncorrectHandler.bind(this);
+        this.checkNoModelPredictionHandler = this.checkNoModelPredictionHandler.bind(this);
+        this.handleModelPredicitionOpacityChangeHandler = this.handleModelPredictionOpacityChangeHandler.bind(this);
+
+        // Model Probabilities
+
+        this.checkModelProbabilitiesHandler = this.checkModelProbabilitiesHandler.bind(this);
+        this.checkNoModelProbabilitiesHandler = this.checkNoModelProbabilitiesHandler.bind(this);
+        this.handleModelProbabilitiesLabelHandler = this.handleModelProbabilitiesLabelHandler.bind(this);
+        this.handleModelProbabilitiesOpacityChangeHandler = this.handleModelProbabilitiesOpacityChangeHandler.bind(this);
+
     }
 
-    handleTargetLayerOpacityChange(value) {
+    // Imagery
+
+    checkRgb() {
         const { dispatch } = this.props;
-        console.log("CHANGING");
-        dispatch(setTargetLayerOpacity(value));
+        dispatch(setImageryType("RGB"));
     }
 
-    checkStatic() {
+    checkIrrg() {
         const { dispatch } = this.props;
-        dispatch(setDataSourceType("STATIC"));
+        dispatch(setImageryType("IRRG"));
     }
 
-    checkDynamic() {
+    checkNoImagery() {
         const { dispatch } = this.props;
-        dispatch(setDataSourceType("DYNAMIC"));
+        dispatch(setImageryType("NONE"));
     }
 
-    checkSnowOn() {
+    handleImageryOpacityChange(value) {
         const { dispatch } = this.props;
-        dispatch(setTargetLayerName("SNOW-ON"));
+        dispatch(setImageryOpacity(value));
     }
 
-    checkSnowOff() {
-        const { dispatch } = this.props;
-        dispatch(setTargetLayerName("SNOW-OFF"));
-    }
+    // DSM
 
     checkColorRamp() {
         const { dispatch } = this.props;
-        dispatch(setRenderMethod("COLORRAMP"));
+        dispatch(setDsmType("COLORRAMP"));
     }
 
     checkHillshade() {
         const { dispatch } = this.props;
-        dispatch(setRenderMethod("HILLSHADE"));
+        dispatch(setDsmType("HILLSHADE"));
     }
 
-    checkIdw() {
+    checkNoDsm() {
         const { dispatch } = this.props;
-        dispatch(setDEMAlgorithm("IDW"));
+        dispatch(setDsmType("NONE"));
     }
 
-    checkTin() {
+    handleDsmOpacityChange(value) {
         const { dispatch } = this.props;
-        dispatch(setDEMAlgorithm("TIN"));
+        dispatch(setDsmOpacity(value));
+    }
+
+    // Labels
+
+    checkLabels() {
+        const { dispatch } = this.props;
+        dispatch(setLabelsType("CHECKED"));
+    }
+
+    checkNoLabels() {
+        const { dispatch } = this.props;
+        dispatch(setLabelsType("NONE"));
+    }
+
+    handleLabelsOpacityChange(value) {
+        const { dispatch } = this.props;
+        dispatch(setLabelsOpacity(value));
+    }
+
+    // Model Predictions
+
+    checkModelPredictionAllHandler(modelId) {
+        const { dispatch } = this.props;
+        return function() {
+            dispatch(setModelPredictionType(modelId, "ALL"));
+        };
+    }
+
+    checkModelPredictionIncorrectHandler(modelId) {
+        const { dispatch } = this.props;
+        return function() {
+            dispatch(setModelPredictionType(modelId, "INCORRECT"));
+        };
+    }
+
+    checkNoModelPredictionHandler(modelId) {
+        const { dispatch } = this.props;
+        return function() {
+            dispatch(setModelPredictionType(modelId, "NONE"));
+        };
+    }
+
+    handleModelPredictionOpacityChangeHandler(modelId) {
+        const { dispatch } = this.props;
+        return function(value) {
+            dispatch(setModelPredictionOpacity(modelId, value));
+        }
+    }
+
+    // Model Probabilities
+
+    checkModelProbabilitiesHandler(modelId) {
+        const { dispatch } = this.props;
+        return function() {
+            dispatch(setModelProbabilitiesType(modelId, "CHECKED"));
+        };
+    }
+
+    checkNoModelProbabilitiesHandler(modelId) {
+        const { dispatch } = this.props;
+        return function() {
+            dispatch(setModelProbabilitiesType(modelId, "NONE"));
+        };
+    }
+
+    handleModelProbabilitiesLabelHandler(modelId, labelId) {
+        const { dispatch } = this.props;
+        return function() {
+            dispatch(setModelProbabilitiesLabel(modelId, labelId));
+        };
+    }
+
+    handleModelProbabilitiesOpacityChangeHandler(modelId) {
+        const { dispatch } = this.props;
+        return function(value) {
+            dispatch(setModelProbabilitiesOpacity(modelId, value));
+        }
     }
 
     isActive(b) {
-        console.log("BOOLEAN " + b);
         return b ? "pt-active" : "";
+    }
+
+    isActiveLabel(b, v) {
+        return b == v ? "pt-active" : "";
     }
 
     render() {
         const {
-            idwChecked,
-            tinChecked,
-            staticChecked,
-            dynamicChecked,
-            targetLayerOpacity,
-            colorRampChecked,
-            hillshadeChecked,
-            snowOnChecked,
-            snowOffChecked } = this.props;
+            imagery,
+            dsm,
+            labels,
+            models } = this.props;
+
+        var modelSections = [];
+        for (var property in models) {
+            if (models.hasOwnProperty(property)) {
+                var modelId = property;
+                var model = models[modelId];
+                var predictions = model.predictions;
+                var probabilities = model.probabilities;
+                // Model Predictions
+
+                var checkModelPredictionAll = this.checkModelPredictionAllHandler(modelId);
+                var checkModelPredictionIncorrect = this.checkModelPredictionIncorrectHandler(modelId);
+                var checkNoModelPrediction = this.checkNoModelPredictionHandler(modelId);
+                var handleModelPredictionOpacityChange = this.handleModelPredicitionOpacityChangeHandler(modelId);
+
+                // Model Probabilities
+
+                var checkModelProbabilities = this.checkModelProbabilitiesHandler(modelId);
+                var checkNoModelProbabilities = this.checkNoModelProbabilitiesHandler(modelId);
+                var handleModelProbabilitiesOpacityChange = this.handleModelProbabilitiesOpacityChangeHandler(modelId);
+
+                var handleImperviousSurface = this.handleModelProbabilitiesLabelHandler(modelId, 0);
+                var handleBuilding = this.handleModelProbabilitiesLabelHandler(modelId, 1);
+                var handleLowVeg = this.handleModelProbabilitiesLabelHandler(modelId, 2);
+                var handleTrees = this.handleModelProbabilitiesLabelHandler(modelId, 3);
+                var handleCars = this.handleModelProbabilitiesLabelHandler(modelId, 4);
+                var handleClutter = this.handleModelProbabilitiesLabelHandler(modelId, 5);
+
+                var probabilitiesLabelButtons = null;
+                if(probabilities.checked) {
+                    probabilitiesLabelButtons =
+                    [<div className="pt-button-group pt-vertical pt-fill">
+                        <Button
+                            active={predictions.labelId == 0}
+                            onClick={handleImperviousSurface}
+                            text="Impervious Surfaces"
+                            className={this.isActiveLabel(probabilities.labelId, 0)}
+                        />
+                        <Button
+                            active={probabilities.labelId == 1}
+                            onClick={handleBuilding}
+                            text="Building"
+                            className={this.isActiveLabel(probabilities.labelId, 1)}
+                        />
+                        <Button
+                            active={probabilities.labelId == 2}
+                            onClick={handleLowVeg}
+                            text="Low Vegitation"
+                            className={this.isActiveLabel(probabilities.labelId, 2)}
+                        />
+                        <Button
+                            active={probabilities.labelId == 3}
+                            onClick={handleTrees}
+                            text="Trees"
+                            className={this.isActiveLabel(probabilities.labelId, 3)}
+                        />
+                        <Button
+                            active={probabilities.labelId == 4}
+                            onClick={handleCars}
+                            text="Cars"
+                            className={this.isActiveLabel(probabilities.labelId, 4)}
+                        />
+                        <Button
+                            active={probabilities.labelId == 5}
+                            onClick={handleClutter}
+                            text="Clutter"
+                            className={this.isActiveLabel(probabilities.labelId, 5)}
+                        />
+                    </div>]
+                }
+
+
+                modelSections.push(
+                    <div className="option-section">
+                        <label htmlFor="" className="primary">Model Predictions: {model.name}</label>
+                        <div className="pt-button-group pt-fill">
+                            <Button
+                                active={predictions.allChecked}
+                                onClick={checkModelPredictionAll}
+                                text="ALL"
+                                className={this.isActive(predictions.allChecked)}
+                            />
+                            <Button
+                                active={predictions.incorrectChecked}
+                                onClick={checkModelPredictionIncorrect}
+                                text="WRONG"
+                                className={this.isActive(predictions.incorrectChecked)}
+                            />
+                            <Button
+                                active={!(predictions.allChecked || predictions.incorrectChecked)}
+                                onClick={checkNoModelPrediction}
+                                text="OFF"
+                                className={this.isActive(!(predictions.allChecked || predictions.incorrectChecked))}
+                            />
+                        </div>
+                        <div className="slider-section">
+                            <label htmlFor="" className="secondary">Opacity</label>
+                            <Slider
+                                min={0}
+                                max={1}
+                                stepSize={0.02}
+                                renderLabel={false}
+                                value={predictions.opacity}
+                                onChange={handleModelPredictionOpacityChange}
+                            />
+                        </div>
+                    </div>
+                )
+                modelSections.push(
+                    <div className="option-section">
+                        <label htmlFor="" className="primary">Model Probabilities: {model.name}</label>
+                        <div className="pt-button-group pt-fill">
+                            <Button
+                                active={probabilities.checked}
+                                onClick={checkModelProbabilities}
+                                text="ON"
+                                className={this.isActive(probabilities.checked)}
+                            />
+                            <Button
+                                active={!probabilities.checked}
+                                onClick={checkNoModelProbabilities}
+                                text="OFF"
+                                className={this.isActive(!probabilities.checked)}
+                            />
+                        </div>
+                        <div className="slider-section">
+                            <label htmlFor="" className="secondary">Opacity</label>
+                            <Slider
+                                min={0}
+                                max={1}
+                                stepSize={0.02}
+                                renderLabel={false}
+                                value={probabilities.opacity}
+                                onChange={handleModelProbabilitiesOpacityChange}
+                            />
+                        </div>
+                        {probabilitiesLabelButtons}
+                    </div>
+                )
+            }
+        }
 
         return (
             <div className="content tab-content content-singlelayer active">
-                {/* <div className="option-section">
-                <label htmlFor="" className="primary">Data Source Type</label>
-                <div className="pt-button-group pt-fill">
-                <Button
-                active={staticChecked}
-                onClick={this.checkStatic}
-                text="Static"
-                className={this.isActive(staticChecked)}
-                />
-                <Button
-                active={dynamicChecked}
-                onClick={this.checkDynamic}
-                text="Dynamic"
-                className={this.isActive(dynamicChecked)}
-                />
-                </div>
-                <label htmlFor="" className="secondary" style={{display: "none"}}>Min &amp; Max Elevation</label>
-                <div style={{display: "none"}}>(Slider)</div>
-                </div> */}
                 <div className="option-section">
-                    <label htmlFor="" className="primary">DEM Creation Method</label>
+                    <label htmlFor="" className="primary">Imagery</label>
                     <div className="pt-button-group pt-fill">
                         <Button
-                            active={tinChecked}
-                            onClick={this.checkTin}
-                            text="TIN"
-                            className={this.isActive(tinChecked)}
+                            active={imagery.rgbChecked}
+                            onClick={this.checkRgb}
+                            text="RGB"
+                            className={this.isActive(imagery.rgbChecked)}
                         />
                         <Button
-                            active={idwChecked}
-                            onClick={this.checkIdw}
-                            text="IDW"
-                            className={this.isActive(idwChecked)}
+                            active={imagery.irrgChecked}
+                            onClick={this.checkIrrg}
+                            text="IRRG"
+                            className={this.isActive(imagery.irrgChecked)}
+                        />
+                        <Button
+                            active={!(imagery.rgbChecked || imagery.irrgChecked)}
+                            onClick={this.checkNoImagery}
+                            text="OFF"
+                            className={this.isActive(!(imagery.rgbChecked || imagery.irrgChecked))}
                         />
                     </div>
-                </div>
-                <div className="option-section">
-                    <label htmlFor="" className="primary">Render Options</label>
-                    <div className="pt-button-group pt-fill">
-                        <Button
-                            active={colorRampChecked}
-                            onClick={this.checkColorRamp}
-                            text="Color Ramp"
-                            className={this.isActive(colorRampChecked)}
-                        />
-                        <Button
-                            active={hillshadeChecked}
-                            onClick={this.checkHillshade}
-                            text="Hillshade"
-                            className={this.isActive(hillshadeChecked)}
-                        />
-                    </div>
-                    <label htmlFor="" className="secondary">Opacity</label>
-                    <div>
+                    <div className="slider-section">
+                        <label htmlFor="" className="secondary">Opacity</label>
                         <Slider
                             min={0}
                             max={1}
                             stepSize={0.02}
                             renderLabel={false}
-                            value={targetLayerOpacity}
-                            onChange={this.handleTargetLayerOpacityChange}
+                            value={imagery.opacity}
+                            onChange={this.handleImageryOpacityChange}
                         />
                     </div>
                 </div>
                 <div className="option-section">
-                    <label htmlFor="" className="primary">Dataset</label>
+                    <label htmlFor="" className="primary">DSM</label>
                     <div className="pt-button-group pt-fill">
                         <Button
-                            active={snowOnChecked}
-                            onClick={this.checkSnowOn}
-                            text="Snow On"
-                            className={this.isActive(snowOnChecked)}
+                            active={dsm.hillshadeChecked}
+                            onClick={this.checkHillshade}
+                            text="Hillshade"
+                            className={this.isActive(dsm.hillshadeChecked)}
                         />
                         <Button
-                            active={snowOffChecked}
-                            onClick={this.checkSnowOff}
-                            text="Snow Off"
-                            className={this.isActive(snowOffChecked)}
+                            active={dsm.colorRampChecked}
+                            onClick={this.checkColorRamp}
+                            text="Ramp"
+                            className={this.isActive(dsm.colorRampChecked)}
+                        />
+                        <Button
+                            active={!(dsm.colorRampChecked || dsm.hillshadeChecked)}
+                            onClick={this.checkNoDsm}
+                            text="OFF"
+                            className={this.isActive(!(dsm.colorRampChecked || dsm.hillshadeChecked))}
+                        />
+                    </div>
+                    <div className="slider-section">
+                        <label htmlFor="" className="secondary">Opacity</label>
+                        <Slider
+                            min={0}
+                            max={1}
+                            stepSize={0.02}
+                            renderLabel={false}
+                            value={dsm.opacity}
+                            onChange={this.handleDsmOpacityChange}
                         />
                     </div>
                 </div>
+                <div className="option-section">
+                    <label htmlFor="" className="primary">Labels</label>
+                    <div className="pt-button-group pt-fill">
+                        <Button
+                            active={labels.checked}
+                            onClick={this.checkLabels}
+                            text="ON"
+                            className={this.isActive(labels.checked)}
+                        />
+                        <Button
+                            active={!labels.checked}
+                            onClick={this.checkNoLabels}
+                            text="OFF"
+                            className={this.isActive(!labels.checked)}
+                        />
+                    </div>
+                    <div className="slider-section">
+                        <label htmlFor="" className="secondary">Opacity</label>
+                        <Slider
+                            min={0}
+                            max={1}
+                            stepSize={0.02}
+                            renderLabel={false}
+                            value={labels.opacity}
+                            onChange={this.handleLabelsOpacityChange}
+                        />
+                    </div>
+                </div>
+                {modelSections}
             </div>
         );
     }
@@ -178,13 +439,8 @@ export default class SingleLayer extends Component {
 
 SingleLayer.propTypes = {
     dispatch: PropTypes.func.isRequired,
-    idwChecked: PropTypes.bool.isRequired,
-    tinChecked: PropTypes.bool.isRequired,
-    staticChecked: PropTypes.bool.isRequired,
-    dynamicChecked: PropTypes.bool.isRequired,
-    targetLayerOpacity: PropTypes.number.isRequired,
-    colorRampChecked: PropTypes.bool.isRequired,
-    hillshadeChecked: PropTypes.bool.isRequired,
-    snowOnChecked: PropTypes.bool.isRequired,
-    snowOffChecked: PropTypes.bool.isRequired
+    imagery: PropTypes.object.isRequired,
+    dsm: PropTypes.object.isRequired,
+    labels: PropTypes.object.isRequired,
+    models: PropTypes.object.isRequired
 }

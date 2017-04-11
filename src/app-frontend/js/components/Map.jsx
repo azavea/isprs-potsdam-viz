@@ -92,31 +92,110 @@ export default class Map extends Component {
                 polygon,
                 point } = this.props;
 
-        var layer = targetLayerName == "SNOW-ON" ? "mar10idw" : "jul10idw"
-        var colorRamp = "blue-to-red"
-
         var hostname = window.location.hostname
 
-        var demLayerUrl = 'tms/'
-
-        let targetLayer = null;
+        let layers = [];
 
         if(singleLayer.active) {
-            let layerName = singleLayer.targetLayerName == "SNOW-ON" ? LN.snowOn : LN.snowOff;
-            layerName = singleLayer.idwChecked ? LN.addIdw(layerName) : LN.addTin(layerName);
+            // Imagery
 
-            let renderMethodPath = singleLayer.renderMethod == "COLORRAMP" ? "png" : "hillshade";
-            let singleLayerPath = renderMethodPath + '/' + layerName + '/{z}/{x}/{y}?colorRamp={colorRamp}';
+            if(singleLayer.imagery.rgbChecked) {
+                var rgbUrl = "tms/imagery/rgb/isprs-potsdam-imagery-rgb/{z}/{x}/{y}"
+                layers.push([<TileLayer
+                                    key="rgbLayer"
+                                    url={rgbUrl}
+                                    opacity={singleLayer.imagery.opacity}
+                                    maxZoom={22}
+                                />]);
+            }
 
-            demLayerUrl = demLayerUrl.concat(singleLayerPath);
+            if(singleLayer.imagery.irrgChecked) {
+                var irrgUrl = "tms/imagery/rgb/isprs-potsdam-imagery-irrg/{z}/{x}/{y}"
+                layers.push([<TileLayer
+                                     key="irrgLayer"
+                                     url={irrgUrl}
+                                     opacity={singleLayer.imagery.opacity}
+                                     maxZoom={22}
+                                 />]);
+            }
 
-            targetLayer = [<TileLayer
-                               key="targetLayer"
-                               url={demLayerUrl}
-                               colorRamp={colorRamp}
-                               opacity={singleLayer.targetLayerOpacity}
-                               maxZoom={19}
-                           />]
+            if(singleLayer.dsm.colorRampChecked) {
+                let dsmUrl = 'tms/png/isprs-potsdam-dsm/{z}/{x}/{y}';
+                layers.push([<TileLayer
+                                 key="dsmColorRampLayer"
+                                 url={dsmUrl}
+                                 opacity={singleLayer.dsm.opacity}
+                                 maxZoom={22}
+                             />]);
+            }
+
+            if(singleLayer.dsm.hillshadeChecked) {
+                let dsmUrl = 'tms/hillshade/isprs-potsdam-dsm/{z}/{x}/{y}';
+                layers.push([<TileLayer
+                                 key="dsmHillshadeLayer"
+                                 url={dsmUrl}
+                                 opacity={singleLayer.dsm.opacity}
+                                 maxZoom={22}
+                             />]);
+            }
+
+            if(singleLayer.labels.checked) {
+                var labelsUrl = "tms/labels/isprs-potsdam-labels/{z}/{x}/{y}";
+                layers.push([<TileLayer
+                                       key="labelsLayer"
+                                       url={labelsUrl}
+                                       opacity={singleLayer.labels.opacity}
+                                       maxZoom={22}
+                                   />]);
+            }
+
+            // Models
+            let models = singleLayer.models;
+
+            for (var property in models) {
+                if (models.hasOwnProperty(property)) {
+                    let modelId = property;
+                    let model = models[modelId];
+                    let predictions = model.predictions;
+                    let probabilities = model.probabilities;
+
+                    if(predictions.allChecked) {
+                        let predUrl = 'tms/models/prediction/isprs-potsdam-' + modelId + '-predictions/{z}/{x}/{y}'
+                        layers.push(
+                            [<TileLayer
+                                key={modelId+'PredLayer'}
+                                url={predUrl}
+                                opacity={predictions.opacity}
+                                maxZoom={22}
+                                />]
+                        )
+                    }
+
+                    if(predictions.incorrectChecked) {
+                        let predUrl = 'tms/models/prediction-incorrect/isprs-potsdam-' + modelId + '-predictions/isprs-potsdam-labels/{z}/{x}/{y}'
+                        layers.push(
+                            [<TileLayer
+                                 key={modelId+'PredLayer'}
+                                 url={predUrl}
+                                 opacity={predictions.opacity}
+                                 maxZoom={22}
+                             />]
+                        )
+                    }
+
+                    if(probabilities.checked) {
+                        var probUrl = 'tms/models/probability/isprs-potsdam-' + modelId + '-probabilities/' + probabilities.labelId + '/{z}/{x}/{y}'
+                        layers.push(
+                            [<TileLayer
+                                 key="probLayer"
+                                 url={probUrl}
+                                 opacity={probabilities.opacity}
+                                 maxZoom={22}
+                             />]
+                        )
+                    }
+                }
+            }
         } else {
             let layerName1 = LN.snowOn;
             layerName1 = changeDetection.idwChecked ? LN.addIdw(layerName1) : LN.addTin(layerName1);
@@ -130,9 +209,49 @@ export default class Map extends Component {
                                key="targetLayer"
                                url={demLayerUrl}
                                opacity={changeDetection.targetLayerOpacity}
-                               maxZoom={19}
+                               maxZoom={22}
                            />]
         }
+
+        var ndviUrl = "tms/imagery/ndvi/isprs-potsdam-imagery-rir/{z}/{x}/{y}"
+        var ndviLayer = [<TileLayer
+                            key="ndviLayer"
+                            url={ndviUrl}
+                            opacity={singleLayer.targetLayerOpacity}
+                            maxZoom={22}
+                         />]
+
+        var fcnPredUrl = "tms/models/prediction/isprs-potsdam-fcn-predictions/{z}/{x}/{y}"
+        var fcnPredLayer = [<TileLayer
+                             key="fcnPredLayer"
+                                url={fcnPredUrl}
+                                opacity={singleLayer.targetLayerOpacity}
+                             maxZoom={22}
+                            />]
+
+        var fcnProbUrl = "tms/models/probability/isprs-potsdam-fcn-probabilities/2/{z}/{x}/{y}"
+        var fcnProbLayer = [<TileLayer
+                                key="fcnProbLayer"
+                                url={fcnProbUrl}
+                                opacity={singleLayer.targetLayerOpacity}
+                                maxZoom={22}
+                                    />]
+
+        var unetPredUrl = "tms/models/prediction/isprs-potsdam-unet-predictions/{z}/{x}/{y}"
+        var unetPredLayer = [<TileLayer
+                                key="unetPredLayer"
+                                 url={unetPredUrl}
+                                 opacity={singleLayer.targetLayerOpacity}
+                                maxZoom={22}
+                             />]
+
+        var unetPredUrl = "tms/models/prediction/isprs-potsdam-unet-predictions/{z}/{x}/{y}"
+        var unetPredLayer = [<TileLayer
+                                 key="unetPredLayer"
+                                 url={unetPredUrl}
+                                 opacity={singleLayer.targetLayerOpacity}
+                                 maxZoom={22}
+                             />]
 
         /* Draw tooling */
 
@@ -160,8 +279,13 @@ export default class Map extends Component {
                 animate={true}
             >
                 <ZoomControl position="topright" />
+
                 {/* <TileLayer
                 url="http://tile.stamen.com/terrain-background/{z}/{x}/{y}@2x.jpg"
+                /> */}
+
+                {/* <TileLayer
+                url="http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png"
                 /> */}
 
                 <TileLayer
@@ -176,7 +300,17 @@ export default class Map extends Component {
                     url="http://tile.stamen.com/toner-labels/{z}/{x}/{y}@2x.png"
                 />
 
-                {targetLayer}
+                {layers}
+
+                {/* {rgbLayer}
+                {labelsLayer} */}
+                {/* {irrgLayer} */}
+                {/* {ndviLayer} */}
+                {/* {fcnPredLayer} */}
+                {/* {unetPredLayer} */}
+                {/* {fcnBuildingProbLayer} */}
+                {/* {targetLayer} */}
+
                 {drawToolbar}
                 {polygonLayer}
                 {pointLayer}

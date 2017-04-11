@@ -92,6 +92,8 @@ object ColorRampMap {
 
   val rampMap: Map[String, ColorRamp] =
     Map(
+      "viridis" -> ColorRamps.Viridis,
+      "inferno" -> ColorRamps.Inferno,
       "blue-to-orange" -> ColorRamps.BlueToOrange,
       "green-to-orange" -> ColorRamps.LightYellowToOrange,
       "blue-to-red" -> ColorRamps.BlueToRed,
