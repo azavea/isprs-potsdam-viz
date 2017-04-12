@@ -19,6 +19,8 @@ export const SET_MODEL_PREDICTION_OPACITY = "SET_MODEL_PREDICTION_OPACITY";
 export const SET_MODEL_PROBABILITIES_TYPE = "SET_MODEL_PROBABILITIES_TYPE";
 export const SET_MODEL_PROBABILITIES_OPACITY = "SET_MODEL_PROBABILITIES_OPACITY";
 export const SET_MODEL_PROBABILITIES_LABEL = "SET_MODEL_PROBABILITIES_LABEL";
+export const SET_AB_TYPE = "SET_AB_TYPE";
+export const SET_AB_OPACITY = "SET_AB_OPACITY";
 export const CLEAR_GEOMETRIES = 'CLEAR_GEOMETRIES';
 export const SET_POLYGON = 'SET_POLYGON';
 export const SET_POINT = 'SET_POINT';
@@ -111,6 +113,21 @@ export function setModelProbabilitiesLabel(modelId, value) {
         payload: { modelId: modelId, labelId: value }
     };
 }
+
+export function setAbType(layerType) {
+    return {
+        type: SET_AB_TYPE,
+        payload: layerType
+    };
+}
+
+export function setAbOpacity(value) {
+    return {
+        type: SET_AB_OPACITY,
+        payload: value
+    };
+}
+
 
 export function clearGeometries() {
     return {

@@ -13,7 +13,9 @@ import {
     setModelPredictionOpacity,
     setModelProbabilitiesType,
     setModelProbabilitiesOpacity,
-    setModelProbabilitiesLabel
+    setModelProbabilitiesLabel,
+    setAbType,
+    setAbOpacity
 } from './actions';
 
 export default class SingleLayer extends Component {
@@ -24,6 +26,8 @@ export default class SingleLayer extends Component {
 
         this.checkRgb = this.checkRgb.bind(this);
         this.checkIrrg = this.checkIrrg.bind(this);
+        this.checkGrayscale = this.checkGrayscale.bind(this);
+        this.checkNdvi = this.checkNdvi.bind(this);
         this.checkNoImagery = this.checkNoImagery.bind(this);
         this.handleImageryOpacityChange = this.handleImageryOpacityChange.bind(this);
 
@@ -54,6 +58,11 @@ export default class SingleLayer extends Component {
         this.handleModelProbabilitiesLabelHandler = this.handleModelProbabilitiesLabelHandler.bind(this);
         this.handleModelProbabilitiesOpacityChangeHandler = this.handleModelProbabilitiesOpacityChangeHandler.bind(this);
 
+        // AB
+
+        this.checkAb = this.checkAb.bind(this);
+        this.checkNoAb = this.checkNoAb.bind(this);
+        this.handleAbOpacityChange = this.handleAbOpacityChange.bind(this);
     }
 
     // Imagery
@@ -66,6 +75,16 @@ export default class SingleLayer extends Component {
     checkIrrg() {
         const { dispatch } = this.props;
         dispatch(setImageryType("IRRG"));
+    }
+
+    checkGrayscale() {
+        const { dispatch } = this.props;
+        dispatch(setImageryType("GRAYSCALE"));
+    }
+
+    checkNdvi() {
+        const { dispatch } = this.props;
+        dispatch(setImageryType("NDVI"));
     }
 
     checkNoImagery() {
@@ -177,6 +196,23 @@ export default class SingleLayer extends Component {
         }
     }
 
+    // AB
+
+    checkAb() {
+        const { dispatch } = this.props;
+        dispatch(setAbType("CHECKED"));
+    }
+
+    checkNoAb() {
+        const { dispatch } = this.props;
+        dispatch(setAbType("NONE"));
+    }
+
+    handleAbOpacityChange(value) {
+        const { dispatch } = this.props;
+        dispatch(setAbOpacity(value));
+    }
+
     isActive(b) {
         return b ? "pt-active" : "";
     }
@@ -190,7 +226,8 @@ export default class SingleLayer extends Component {
             imagery,
             dsm,
             labels,
-            models } = this.props;
+            models,
+            ab } = this.props;
 
         var modelSections = [];
         for (var property in models) {
@@ -350,11 +387,25 @@ export default class SingleLayer extends Component {
                             text="IRRG"
                             className={this.isActive(imagery.irrgChecked)}
                         />
+                    </div>
+                    <div className="pt-button-group pt-fill">
                         <Button
-                            active={!(imagery.rgbChecked || imagery.irrgChecked)}
+                            active={imagery.ndviChecked}
+                            onClick={this.checkNdvi}
+                            text="NDVI"
+                            className={this.isActive(imagery.ndviChecked)}
+                        />
+                        <Button
+                            active={imagery.grayscaleChecked}
+                            onClick={this.checkGrayscale}
+                            text="GRAYSCALE"
+                            className={this.isActive(imagery.grayscaleChecked)}
+                        />
+                        <Button
+                            active={!(imagery.rgbChecked || imagery.irrgChecked || imagery.ndviChecked || imagery.grayscaleChecked)}
                             onClick={this.checkNoImagery}
                             text="OFF"
-                            className={this.isActive(!(imagery.rgbChecked || imagery.irrgChecked))}
+                            className={this.isActive(!(imagery.rgbChecked || imagery.irrgChecked || imagery.ndviChecked || imagery.grayscaleChecked))}
                         />
                     </div>
                     <div className="slider-section">
@@ -432,6 +483,34 @@ export default class SingleLayer extends Component {
                     </div>
                 </div>
                 {modelSections}
+                <div className="option-section">
+                    <label htmlFor="" className="primary">FCN vs UNET</label>
+                    <div className="pt-button-group pt-fill">
+                        <Button
+                            active={ab.checked}
+                            onClick={this.checkAb}
+                            text="ON"
+                            className={this.isActive(ab.checked)}
+                        />
+                        <Button
+                            active={!ab.checked}
+                            onClick={this.checkNoAb}
+                            text="OFF"
+                            className={this.isActive(!ab.checked)}
+                        />
+                    </div>
+                    <div className="slider-section">
+                        <label htmlFor="" className="secondary">Opacity</label>
+                        <Slider
+                            min={0}
+                            max={1}
+                            stepSize={0.02}
+                            renderLabel={false}
+                            value={ab.opacity}
+                            onChange={this.handleAbOpacityChange}
+                        />
+                    </div>
+                </div>
             </div>
         );
     }

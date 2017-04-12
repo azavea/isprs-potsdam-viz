@@ -1,5 +1,5 @@
 {
-  "name": "pc-demo",
+  "name": "raster-viz",
   "version": "0.1.0",
   "description": "A web based tool to quickly get neighborhood stats and details for outreach.",
   "private": true,
@@ -12,15 +12,7 @@
   "jest": {
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.jsx?$"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/geotrellis/geotrellis-poincloud-demo/pc-demo.git"
-  },
   "author": "Azavea",
-  "bugs": {
-    "url": "https://github.com/geotrellis/geotrellis-poincloud-demo/issues"
-  },
-  "homepage": "https://github.com/geotrellis/geotrellis-poincloud-demo",
   "dependencies": {
     "@blueprintjs/core": "1.8.0",
     "axios": "0.15.3",

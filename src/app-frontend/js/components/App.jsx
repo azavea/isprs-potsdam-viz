@@ -136,6 +136,7 @@ class App extends Component {
                                     dsm={singleLayer.dsm}
                                     labels={singleLayer.labels}
                                     models={singleLayer.models}
+                                    ab={singleLayer.ab}
                                 />
                                 {/* </TabPanel>
                                 <TabPanel>

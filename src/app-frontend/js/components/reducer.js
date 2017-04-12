@@ -22,7 +22,9 @@ import {
     SET_MODEL_PREDICTION_OPACITY,
     SET_MODEL_PROBABILITIES_TYPE,
     SET_MODEL_PROBABILITIES_OPACITY,
-    SET_MODEL_PROBABILITIES_LABEL
+    SET_MODEL_PROBABILITIES_LABEL,
+    SET_AB_TYPE,
+    SET_AB_OPACITY,
 } from './actions';
 
 
@@ -34,6 +36,8 @@ const initAppPage = {
       imagery: {
         rgbChecked: true,
         irrgChecked: false,
+        grayscaleChecked: false,
+        ndviChecked: false,
         opacity: 1.0
       },
       dsm: {
@@ -72,7 +76,11 @@ const initAppPage = {
             opacity: 0.9
           }
         }
-      }
+      },
+        ab: {
+            checked: false,
+            opacity: 0.9
+        }
     },
     changeDetection: {
         active: false,
@@ -171,6 +179,8 @@ export default function appPage(state = initAppPage, action) {
             // May be "NONE"
             var rgbChecked = action.payload == "RGB";
             var irrgChecked = action.payload == "IRRG";
+            var ndviChecked = action.payload == "NDVI";
+            var grayscaleChecked = action.payload == "GRAYSCALE";
 
             newState = immutable.set(newState,
                                      'singleLayer.imagery.rgbChecked',
@@ -178,6 +188,12 @@ export default function appPage(state = initAppPage, action) {
             newState = immutable.set(newState,
                                      'singleLayer.imagery.irrgChecked',
                                      irrgChecked);
+            newState = immutable.set(newState,
+                                     'singleLayer.imagery.ndviChecked',
+                                     ndviChecked);
+            newState = immutable.set(newState,
+                                     'singleLayer.imagery.grayscaleChecked',
+                                     grayscaleChecked);
             return newState;
         case SET_IMAGERY_OPACITY:
             return immutable.set(newState,
@@ -251,6 +267,20 @@ export default function appPage(state = initAppPage, action) {
             return immutable.set(newState,
                                  'singleLayer.models.' + modelId + '.probabilities.opacity',
                                  action.payload.opacity);
+
+        // Hacked together
+        case SET_AB_TYPE:
+            // May be "NONE"
+            var checked = action.payload == "CHECKED";
+
+            newState = immutable.set(newState,
+                                     'singleLayer.ab.checked',
+                                     checked);
+            return newState;
+        case SET_AB_OPACITY:
+            return immutable.set(newState,
+                                 'singleLayer.ab.opacity',
+                                 action.payload);
         default:
             console.log("UNKOWN ACTION: " + action.type);
             return newState;

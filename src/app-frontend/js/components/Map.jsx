@@ -12,6 +12,7 @@ import {
 
 import { GeoJSONGeometryTypeDef, LocationTypeDef } from 'TypeDefs';
 import 'leaflet-fullscreen';
+import _ from 'lodash';
 
 import DrawToolbar from './DrawToolbar';
 
@@ -94,7 +95,7 @@ export default class Map extends Component {
 
         var hostname = window.location.hostname
 
-        let layers = [];
+        var layers = [];
 
         if(singleLayer.active) {
             // Imagery
@@ -102,21 +103,45 @@ export default class Map extends Component {
             if(singleLayer.imagery.rgbChecked) {
                 var rgbUrl = "tms/imagery/rgb/isprs-potsdam-imagery-rgb/{z}/{x}/{y}"
                 layers.push([<TileLayer
-                                    key="rgbLayer"
-                                    url={rgbUrl}
-                                    opacity={singleLayer.imagery.opacity}
-                                    maxZoom={22}
+                                 key="rgbLayer"
+                                 url={rgbUrl}
+                                 opacity={singleLayer.imagery.opacity}
+                                 maxZoom={22}
+                                 zIndex={0}
                                 />]);
             }
 
             if(singleLayer.imagery.irrgChecked) {
                 var irrgUrl = "tms/imagery/rgb/isprs-potsdam-imagery-irrg/{z}/{x}/{y}"
                 layers.push([<TileLayer
-                                     key="irrgLayer"
-                                     url={irrgUrl}
-                                     opacity={singleLayer.imagery.opacity}
-                                     maxZoom={22}
+                                 key="irrgLayer"
+                                 url={irrgUrl}
+                                 opacity={singleLayer.imagery.opacity}
+                                 maxZoom={22}
+                                 zIndex={0}
                                  />]);
+            }
+
+            if(singleLayer.imagery.ndviChecked) {
+                var ndviUrl = "tms/imagery/ndvi/isprs-potsdam-imagery-rir/{z}/{x}/{y}"
+                layers.push([<TileLayer
+                                 key="ndviLayer"
+                                 url={ndviUrl}
+                                 opacity={singleLayer.imagery.opacity}
+                                 maxZoom={22}
+                                 zIndex={0}
+                             />]);
+            }
+
+            if(singleLayer.imagery.grayscaleChecked) {
+                var grayscaleUrl = "tms/imagery/grayscale/isprs-potsdam-imagery-rgb/{z}/{x}/{y}"
+                layers.push([<TileLayer
+                                 key="grayscaleLayer"
+                                 url={grayscaleUrl}
+                                 opacity={singleLayer.imagery.opacity}
+                                 maxZoom={22}
+                                 zIndex={0}
+                             />]);
             }
 
             if(singleLayer.dsm.colorRampChecked) {
@@ -126,6 +151,7 @@ export default class Map extends Component {
                                  url={dsmUrl}
                                  opacity={singleLayer.dsm.opacity}
                                  maxZoom={22}
+                                 zIndex={1}
                              />]);
             }
 
@@ -136,16 +162,18 @@ export default class Map extends Component {
                                  url={dsmUrl}
                                  opacity={singleLayer.dsm.opacity}
                                  maxZoom={22}
+                                 zIndex={1}
                              />]);
             }
 
             if(singleLayer.labels.checked) {
                 var labelsUrl = "tms/labels/isprs-potsdam-labels/{z}/{x}/{y}";
                 layers.push([<TileLayer
-                                       key="labelsLayer"
-                                       url={labelsUrl}
-                                       opacity={singleLayer.labels.opacity}
-                                       maxZoom={22}
+                                 key="labelsLayer"
+                                 url={labelsUrl}
+                                 opacity={singleLayer.labels.opacity}
+                                 maxZoom={22}
+                                 zIndex={2}
                                    />]);
             }
 
@@ -166,7 +194,8 @@ export default class Map extends Component {
                                 key={modelId+'PredLayer'}
                                 url={predUrl}
                                 opacity={predictions.opacity}
-                                maxZoom={22}
+                                 maxZoom={22}
+                                 zIndex={3}
                                 />]
                         )
                     }
@@ -179,6 +208,7 @@ export default class Map extends Component {
                                  url={predUrl}
                                  opacity={predictions.opacity}
                                  maxZoom={22}
+                                 zIndex={3}
                              />]
                         )
                     }
@@ -191,11 +221,26 @@ export default class Map extends Component {
                                  url={probUrl}
                                  opacity={probabilities.opacity}
                                  maxZoom={22}
+                                 zIndex={4}
                              />]
                         )
                     }
                 }
             }
+
+            // AB
+
+            if(singleLayer.ab.checked) {
+                var abUrl = "tms/models/prediction-ab/isprs-potsdam-fcn-predictions/isprs-potsdam-unet-predictions/isprs-potsdam-labels/{z}/{x}/{y}";
+                layers.push([<TileLayer
+                                 key="abLayer"
+                                 url={abUrl}
+                                 opacity={singleLayer.ab.opacity}
+                                 maxZoom={22}
+                                 zIndex={5}
+                             />]);
+            }
+
         } else {
             let layerName1 = LN.snowOn;
             layerName1 = changeDetection.idwChecked ? LN.addIdw(layerName1) : LN.addTin(layerName1);
@@ -213,46 +258,6 @@ export default class Map extends Component {
                            />]
         }
 
-        var ndviUrl = "tms/imagery/ndvi/isprs-potsdam-imagery-rir/{z}/{x}/{y}"
-        var ndviLayer = [<TileLayer
-                            key="ndviLayer"
-                            url={ndviUrl}
-                            opacity={singleLayer.targetLayerOpacity}
-                            maxZoom={22}
-                         />]
-
-        var fcnPredUrl = "tms/models/prediction/isprs-potsdam-fcn-predictions/{z}/{x}/{y}"
-        var fcnPredLayer = [<TileLayer
-                             key="fcnPredLayer"
-                                url={fcnPredUrl}
-                                opacity={singleLayer.targetLayerOpacity}
-                             maxZoom={22}
-                            />]
-
-        var fcnProbUrl = "tms/models/probability/isprs-potsdam-fcn-probabilities/2/{z}/{x}/{y}"
-        var fcnProbLayer = [<TileLayer
-                                key="fcnProbLayer"
-                                url={fcnProbUrl}
-                                opacity={singleLayer.targetLayerOpacity}
-                                maxZoom={22}
-                                    />]
-
-        var unetPredUrl = "tms/models/prediction/isprs-potsdam-unet-predictions/{z}/{x}/{y}"
-        var unetPredLayer = [<TileLayer
-                                key="unetPredLayer"
-                                 url={unetPredUrl}
-                                 opacity={singleLayer.targetLayerOpacity}
-                                maxZoom={22}
-                             />]
-
-        var unetPredUrl = "tms/models/prediction/isprs-potsdam-unet-predictions/{z}/{x}/{y}"
-        var unetPredLayer = [<TileLayer
-                                 key="unetPredLayer"
-                                 url={unetPredUrl}
-                                 opacity={singleLayer.targetLayerOpacity}
-                                 maxZoom={22}
-                             />]
-
         /* Draw tooling */
 
         const drawToolbar = this.createDrawToolbarComponent();
@@ -268,7 +273,6 @@ export default class Map extends Component {
         if (point) {
             pointLayer = <Marker position={point} />
         }
-
 
         return (
             <LeafletMap
@@ -302,18 +306,6 @@ export default class Map extends Component {
 
                 {layers}
 
-                {/* {rgbLayer}
-                {labelsLayer} */}
-                {/* {irrgLayer} */}
-                {/* {ndviLayer} */}
-                {/* {fcnPredLayer} */}
-                {/* {unetPredLayer} */}
-                {/* {fcnBuildingProbLayer} */}
-                {/* {targetLayer} */}
-
-                {drawToolbar}
-                {polygonLayer}
-                {pointLayer}
             </LeafletMap>
         );
     }

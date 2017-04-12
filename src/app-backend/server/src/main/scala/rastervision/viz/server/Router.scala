@@ -50,7 +50,7 @@ import scala.reflect.ClassTag
 trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerExecutor {
 
   val ndviColorBreaks =
-    ColorMap.fromStringDouble("0.05:ffffe5aa;0.1:f7fcb9ff;0.2:d9f0a3ff;0.3:addd8eff;0.4:78c679ff;0.5:41ab5dff;0.6:238443ff;0.7:006837ff;1:004529ff").get
+    ColorMap.fromStringDouble("0.05:ffffe5ff;0.1:f7fcb9ff;0.2:d9f0a3ff;0.3:addd8eff;0.4:78c679ff;0.5:41ab5dff;0.6:238443ff;0.7:006837ff;1:004529ff").get
 
   val probabilityColorMap =
     ColorMap(
@@ -79,7 +79,8 @@ trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerEx
       0x00FFFF -> 2,
       0x00FF00 -> 3,
       0xFFFF00 -> 4,
-      0xFF0000 -> 5
+      0xFF0000 -> 5,
+      0xFF00FF -> 6
     )
 
 
@@ -827,6 +828,71 @@ trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerEx
               }
             }
           }
+        } ~
+        pathPrefix("prediction-ab") {
+          pathPrefix(Segment / Segment / Segment / IntNumber / IntNumber / IntNumber) { (layer1Name, layer2Name, labelLayerName, zoom, x, y) =>
+            parameters(
+              'poly ? ""
+            ) { poly =>
+              val layer1Id = LayerId(layer1Name, zoom)
+              val layer2Id = LayerId(layer2Name, zoom)
+              val labelLayerId = LayerId(labelLayerName, zoom)
+              val key = SpatialKey(x, y)
+              val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](labelLayerId)
+              val extent = md.mapTransform(key)
+              val polygon =
+                if(poly.isEmpty) None
+                else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
+
+              complete {
+                Future {
+                  val tileOpt =
+                    try {
+                      Some {
+                        val labels =
+                          getMultibandTile(labelLayerId, key)
+                            .delayedConversion(ByteConstantNoDataCellType)
+                            .combine(0, 1, 2) { (r, g, b) =>
+                              val c = ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | ((b & 0xFF))
+
+                              predictionValueMap.get(c) match {
+                                case Some(v) => v
+                                case None =>
+                                  println(s"PROBLEM CHILD ${(r, g, b)}}")
+                                  println(s"PROBLEM CHILD ${c.toHexString}")
+                                  sys.error(s"PROBLEM CHILD ${c.toHexString}")
+                              }
+                            }
+
+                        val predictions1 = getTile(layer1Id, key)
+                        val predictions2 = getTile(layer2Id, key)
+
+                        ArrayMultibandTile(labels, predictions1, predictions2)
+                          .delayedConversion(IntConstantNoDataCellType)
+                          .combine(0, 1, 2) { (l, p1, p2) =>
+                          if(isData(l)) {
+                            val a = p1 == l
+                            val b = p2 == l
+                            if(a && !b) { 0x8DFF42FF }
+                            else if (b && !a) { 0x21e8ffff }
+                            else if (!a && !b) { 0xce0812ff }
+                            else { 0x00000000 }
+                          } else { 0x00000000 }
+                        }
+                      }
+                    } catch {
+                      case e: ValueNotFoundError =>
+                        None
+                    }
+                  tileOpt.map { tile =>
+                    val masked = polygon.fold(tile) { p => tile.mask(extent, p.geom) }
+                    val bytes = masked.renderPng.bytes
+                    HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`image/png`), bytes))
+                  }
+                }
+              }
+            }
+          }
         }
       } ~
       pathPrefix("labels") {
@@ -894,6 +960,48 @@ trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerEx
             }
           }
         } ~
+        pathPrefix("grayscale") {
+          pathPrefix(Segment / IntNumber / IntNumber / IntNumber) { (layerName, zoom, x, y) =>
+            parameters(
+              'poly ? ""
+            ) { (poly) =>
+              val layerId = LayerId(layerName, zoom)
+              val key = SpatialKey(x, y)
+              val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
+              val extent = md.mapTransform(key)
+              val polygon =
+                if(poly.isEmpty) None
+                else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
+
+              complete {
+                Future {
+                  val tileOpt =
+                    try {
+                      Some(
+                        getMultibandTile(layerId, key)
+                          .delayedConversion(IntCellType)
+                          .combine(0, 1, 2) { (r, g, b) =>
+                          val v = (0.2989 * r.toDouble + 0.5870 * g.toDouble + 0.1140 * b.toDouble).toInt & 0xFF
+
+                            if(v == 0) 0
+                            else { v << 24 | v << 16 | v << 8 | 0xFF }
+                        }
+                      )
+                    } catch {
+                      case e: ValueNotFoundError =>
+                        None
+                    }
+
+                  tileOpt.map { tile =>
+                    val masked = polygon.fold(tile) { p => tile.mask(extent, p.geom) }
+                    val bytes = masked.renderPng.bytes
+                    HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`image/png`), bytes))
+                  }
+                }
+              }
+            }
+          }
+        } ~
         pathPrefix("ndvi") {
           pathPrefix(Segment / IntNumber / IntNumber / IntNumber) { (layerName, zoom, x, y) =>
             parameters(
@@ -920,7 +1028,7 @@ trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerEx
                     val masked = polygon.fold(tile) { p => tile.mask(extent, p.geom) }
                     val ndvi =
                       masked.delayedConversion(DoubleConstantNoDataCellType).combineDouble(0, 1) { (r, ir) =>
-                        (r - ir) / (r + ir)
+                        (ir - r) / (ir + r)
                       }
                     val bytes = ndvi.renderPng(ndviColorBreaks).bytes
                     HttpResponse(entity = HttpEntity(ContentType(MediaTypes.`image/png`), bytes))
