@@ -144,8 +144,10 @@ export default class Map extends Component {
                              />]);
             }
 
+            // DSM
+
             if(singleLayer.dsm.colorRampChecked) {
-                let dsmUrl = 'tms/png/isprs-potsdam-dsm/{z}/{x}/{y}';
+                let dsmUrl = 'tms/png/isprs-potsdam-dsm-gt/{z}/{x}/{y}';
                 layers.push([<TileLayer
                                  key="dsmColorRampLayer"
                                  url={dsmUrl}
@@ -156,7 +158,7 @@ export default class Map extends Component {
             }
 
             if(singleLayer.dsm.hillshadeChecked) {
-                let dsmUrl = 'tms/hillshade/isprs-potsdam-dsm/{z}/{x}/{y}';
+                let dsmUrl = 'tms/hillshade/isprs-potsdam-dsm-gt/{z}/{x}/{y}';
                 layers.push([<TileLayer
                                  key="dsmHillshadeLayer"
                                  url={dsmUrl}
@@ -165,6 +167,32 @@ export default class Map extends Component {
                                  zIndex={1}
                              />]);
             }
+
+            // GT DSM
+
+            if(singleLayer.dsmGt.colorRampChecked) {
+                let dsmGtUrl = 'tms/png/isprs-potsdam-dsm-gtn/{z}/{x}/{y}';
+                layers.push([<TileLayer
+                                 key="dsmGtColorRampLayer"
+                                 url={dsmGtUrl}
+                                 opacity={singleLayer.dsmGt.opacity}
+                                 maxZoom={22}
+                                 zIndex={1}
+                             />]);
+            }
+
+            if(singleLayer.dsmGt.hillshadeChecked) {
+                let dsmGtUrl = 'tms/hillshade/isprs-potsdam-dsm-gtn/{z}/{x}/{y}';
+                layers.push([<TileLayer
+                                 key="dsmGtHillshadeLayer"
+                                 url={dsmGtUrl}
+                                 opacity={singleLayer.dsmGt.opacity}
+                                 maxZoom={22}
+                                 zIndex={1}
+                             />]);
+            }
+
+            // Labels
 
             if(singleLayer.labels.checked) {
                 var labelsUrl = "tms/labels/isprs-potsdam-labels/{z}/{x}/{y}";
@@ -240,6 +268,20 @@ export default class Map extends Component {
                                  zIndex={5}
                              />]);
             }
+
+            // ABDSM
+
+            if(singleLayer.abDsm.checked) {
+                var abDsmUrl = "tms/models/prediction-ab/isprs-potsdam-fcn-predictions/isprs-potsdam-fcndsm-predictions/isprs-potsdam-labels/{z}/{x}/{y}";
+                layers.push([<TileLayer
+                                 key="abDsmLayer"
+                                 url={abDsmUrl}
+                                 opacity={singleLayer.abDsm.opacity}
+                                 maxZoom={22}
+                                 zIndex={5}
+                             />]);
+            }
+
 
         } else {
             let layerName1 = LN.snowOn;

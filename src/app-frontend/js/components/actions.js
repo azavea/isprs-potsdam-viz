@@ -51,17 +51,19 @@ export function setImageryOpacity(value) {
     };
 }
 
-export function setDsmType(layerType) {
+export function setDsmType(layerType, layerDiscriminator) {
     return {
         type: SET_DSM_TYPE,
-        payload: layerType
+        payload: layerType,
+        isGt: layerDiscriminator == "gt"
     };
 }
 
-export function setDsmOpacity(value) {
+export function setDsmOpacity(value, layerDiscriminator) {
     return {
         type: SET_DSM_OPACITY,
-        payload: value
+        payload: value,
+        isGt: layerDiscriminator == "gt"
     };
 }
 
@@ -114,17 +116,19 @@ export function setModelProbabilitiesLabel(modelId, value) {
     };
 }
 
-export function setAbType(layerType) {
+export function setAbType(layerType, layerDiscriminator) {
     return {
         type: SET_AB_TYPE,
-        payload: layerType
+        payload: layerType,
+        isDsm: layerDiscriminator == "dsm"
     };
 }
 
-export function setAbOpacity(value) {
+export function setAbOpacity(value, layerDiscriminator) {
     return {
         type: SET_AB_OPACITY,
-        payload: value
+        payload: value,
+        isDsm: layerDiscriminator == "dsm"
     };
 }
 

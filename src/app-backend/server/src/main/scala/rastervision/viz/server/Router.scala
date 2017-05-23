@@ -713,16 +713,16 @@ trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerEx
             parameters(
               'poly ? ""
             ) { (poly) =>
-              val layerId = LayerId(layerName, zoom)
-              val key = SpatialKey(x, y)
-              val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
-              val extent = md.mapTransform(key)
-              val polygon =
-                if(poly.isEmpty) None
-                else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
-
               complete {
                 Future {
+                  val layerId = LayerId(layerName, zoom)
+                  val key = SpatialKey(x, y)
+                  val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
+                  val extent = md.mapTransform(key)
+                  val polygon =
+                    if(poly.isEmpty) None
+                    else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
+
                   val tileOpt =
                     try {
                       Some(getMultibandTile(layerId, key))
@@ -746,16 +746,17 @@ trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerEx
             parameters(
               'poly ? ""
             ) { poly =>
-              val layerId = LayerId(layerName, zoom)
-              val key = SpatialKey(x, y)
-              val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
-              val extent = md.mapTransform(key)
-              val polygon =
-                if(poly.isEmpty) None
-                else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
-
               complete {
                 Future {
+
+                  val layerId = LayerId(layerName, zoom)
+                  val key = SpatialKey(x, y)
+                  val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
+                  val extent = md.mapTransform(key)
+                  val polygon =
+                    if(poly.isEmpty) None
+                    else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
+
                   val tileOpt =
                     try {
                       Some(getTile(layerId, key))
@@ -778,17 +779,17 @@ trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerEx
             parameters(
               'poly ? ""
             ) { poly =>
-              val layerId = LayerId(layerName, zoom)
-              val labelLayerId = LayerId(labelLayerName, zoom)
-              val key = SpatialKey(x, y)
-              val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
-              val extent = md.mapTransform(key)
-              val polygon =
-                if(poly.isEmpty) None
-                else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
-
               complete {
                 Future {
+                  val layerId = LayerId(layerName, zoom)
+                  val labelLayerId = LayerId(labelLayerName, zoom)
+                  val key = SpatialKey(x, y)
+                  val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
+                  val extent = md.mapTransform(key)
+                  val polygon =
+                    if(poly.isEmpty) None
+                    else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
+
                   val tileOpt =
                     try {
                       Some {
@@ -834,18 +835,19 @@ trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerEx
             parameters(
               'poly ? ""
             ) { poly =>
-              val layer1Id = LayerId(layer1Name, zoom)
-              val layer2Id = LayerId(layer2Name, zoom)
-              val labelLayerId = LayerId(labelLayerName, zoom)
-              val key = SpatialKey(x, y)
-              val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](labelLayerId)
-              val extent = md.mapTransform(key)
-              val polygon =
-                if(poly.isEmpty) None
-                else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
-
               complete {
                 Future {
+
+                  val layer1Id = LayerId(layer1Name, zoom)
+                  val layer2Id = LayerId(layer2Name, zoom)
+                  val labelLayerId = LayerId(labelLayerName, zoom)
+                  val key = SpatialKey(x, y)
+                  val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](labelLayerId)
+                  val extent = md.mapTransform(key)
+                  val polygon =
+                    if(poly.isEmpty) None
+                    else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
+
                   val tileOpt =
                     try {
                       Some {
@@ -900,16 +902,17 @@ trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerEx
           parameters(
             'poly ? ""
           ) { (poly) =>
-            val layerId = LayerId(layerName, zoom)
-            val key = SpatialKey(x, y)
-            val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
-            val extent = md.mapTransform(key)
-            val polygon =
-              if(poly.isEmpty) None
-              else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
-
             complete {
               Future {
+
+                val layerId = LayerId(layerName, zoom)
+                val key = SpatialKey(x, y)
+                val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
+                val extent = md.mapTransform(key)
+                val polygon =
+                  if(poly.isEmpty) None
+                  else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
+
                 val tileOpt =
                   try {
                     Some(getMultibandTile(layerId, key))
@@ -933,16 +936,17 @@ trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerEx
             parameters(
               'poly ? ""
             ) { (poly) =>
-              val layerId = LayerId(layerName, zoom)
-              val key = SpatialKey(x, y)
-              val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
-              val extent = md.mapTransform(key)
-              val polygon =
-                if(poly.isEmpty) None
-                else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
-
               complete {
                 Future {
+
+                  val layerId = LayerId(layerName, zoom)
+                  val key = SpatialKey(x, y)
+                  val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
+                  val extent = md.mapTransform(key)
+                  val polygon =
+                    if(poly.isEmpty) None
+                    else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
+
                   val tileOpt =
                     try {
                       Some(getMultibandTile(layerId, key))
@@ -965,16 +969,17 @@ trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerEx
             parameters(
               'poly ? ""
             ) { (poly) =>
-              val layerId = LayerId(layerName, zoom)
-              val key = SpatialKey(x, y)
-              val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
-              val extent = md.mapTransform(key)
-              val polygon =
-                if(poly.isEmpty) None
-                else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
-
               complete {
                 Future {
+
+                  val layerId = LayerId(layerName, zoom)
+                  val key = SpatialKey(x, y)
+                  val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
+                  val extent = md.mapTransform(key)
+                  val polygon =
+                    if(poly.isEmpty) None
+                    else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
+
                   val tileOpt =
                     try {
                       Some(
@@ -1007,16 +1012,17 @@ trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerEx
             parameters(
               'poly ? ""
             ) { (poly) =>
-              val layerId = LayerId(layerName, zoom)
-              val key = SpatialKey(x, y)
-              val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
-              val extent = md.mapTransform(key)
-              val polygon =
-                if(poly.isEmpty) None
-                else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
-
               complete {
                 Future {
+
+                  val layerId = LayerId(layerName, zoom)
+                  val key = SpatialKey(x, y)
+                  val md = attributeStore.readMetadata[TileLayerMetadata[SpatialKey]](layerId)
+                  val extent = md.mapTransform(key)
+                  val polygon =
+                    if(poly.isEmpty) None
+                    else Some(poly.parseGeoJson[Polygon].reproject(LatLng, md.crs))
+
                   val tileOpt =
                     try {
                       Some(getMultibandTile(layerId, key))
