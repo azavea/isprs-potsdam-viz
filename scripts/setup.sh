@@ -19,7 +19,7 @@ then
     then
         usage
     else
-        if ansible --version | grep -q "ansible 2.2."; then
+        if (ansible --version | grep -q "ansible 2.2.") || (ansible --version | grep -q "ansible 2.3."); then
             vagrant up --provision
             vagrant ssh -c "cd /vagrant && ./scripts/update.sh"
         else

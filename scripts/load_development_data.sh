@@ -39,6 +39,12 @@ then
             "s3://otid-data/input/1_DSM_normalisation_geotiff-with-geo/dsm_potsdam_02_10_normalized_lastools-geo.tif" \
             "dsm.tif"
         download_if_not_exits \
+            "s3://otid-data/input/geotrellis_generated_dsm/dsm_potsdam_02_10.tff" \
+            "dsm-gt.tif"
+        download_if_not_exits \
+            "s3://otid-data/input/geotrellis_generated_dsm_normalized/normalized-dsm_potsdam_02_10.tif" \
+            "dsm-gtn.tif"
+        download_if_not_exits \
             "s3://otid-data/input/4_Ortho_RGBIR_geotiff/top_potsdam_2_10_RGBIR.tif" \
             "rgbir.tif"
         download_if_not_exits \
@@ -50,6 +56,9 @@ then
         download_if_not_exits \
             "s3://otid-data/input/viz/unet_results_4_7_17/top_potsdam_2_10_label-geo.tif" \
             "unet.tif"
+        download_if_not_exits \
+            "s3://otid-data/input/viz/fcn_results_irrgdsm_5_20_17/top_potsdam_2_10_label.tif" \
+            "fcn-dsm.tif"
     fi
     exit
 fi

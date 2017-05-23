@@ -13,8 +13,8 @@ resource "aws_ecs_cluster" "container_instance" {
 }
 
 resource "aws_security_group" "container_instance" {
-  #vpc_id = "${module.vpc.id}"
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${module.vpc.id}"
+  # vpc_id = "${var.vpc_id}"
 
   ingress {
     from_port   = 22
@@ -22,6 +22,14 @@ resource "aws_security_group" "container_instance" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
 
   egress {
     from_port       = 0
@@ -35,6 +43,56 @@ resource "aws_security_group" "container_instance" {
     Project     = "${var.project}"
     Environment = "${var.environment}"
   }
+}
+
+resource "aws_security_group_rule" "container_instance_http_egress" {
+  type        = "egress"
+  from_port   = 80
+  to_port     = 80
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  security_group_id = "${aws_security_group.container_instance.id}"
+}
+
+resource "aws_security_group_rule" "container_instance_https_egress" {
+  type        = "egress"
+  from_port   = 443
+  to_port     = 443
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  security_group_id = "${aws_security_group.container_instance.id}"
+}
+
+resource "aws_security_group_rule" "container_instance_bastion_ssh_ingress" {
+  type      = "ingress"
+  from_port = 22
+  to_port   = 22
+  protocol  = "tcp"
+
+  security_group_id        = "${aws_security_group.container_instance.id}"
+  source_security_group_id = "${module.vpc.bastion_security_group_id}"
+}
+
+resource "aws_security_group_rule" "container_instance_alb_api_server_all_ingress" {
+  type      = "ingress"
+  from_port = 0
+  to_port   = 65535
+  protocol  = "tcp"
+
+  security_group_id        = "${aws_security_group.container_instance.id}"
+  source_security_group_id = "${aws_security_group.server_app_alb.id}"
+}
+
+resource "aws_security_group_rule" "container_instance_alb_api_server_all_egress" {
+  type      = "egress"
+  from_port = 0
+  to_port   = 65535
+  protocol  = "tcp"
+
+  security_group_id        = "${aws_security_group.container_instance.id}"
+  source_security_group_id = "${aws_security_group.server_app_alb.id}"
 }
 
 data "template_file" "container_instance_cloud_config" {
@@ -84,8 +142,8 @@ resource "aws_autoscaling_group" "ecs" {
   desired_capacity          = "${var.desired_instance_count}"
   min_size                  = "${var.desired_instance_count}"
   max_size                  = "${var.desired_instance_count}"
-  #  vpc_zone_identifier       = ["${module.vpc.private_subnet_ids}"]
-  vpc_zone_identifier       = ["${var.vpc_subnet_ids}"]
+  vpc_zone_identifier       = ["${module.vpc.private_subnet_ids}"]
+  # vpc_zone_identifier       = ["${var.vpc_subnet_ids}"]
 
   tag {
     key                 = "Name"
