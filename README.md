@@ -1,4 +1,4 @@
-# Raster Vision: Visualization
+# ISPRS Potsdam data viewer
 
 This is an application for viewing the ISPRS Potsdamn dataset and results from Azavea's Raster Vision project.
 
