@@ -35,9 +35,8 @@ resource "aws_alb_target_group" "server_app_http" {
   health_check {
     healthy_threshold   = "3"
     interval            = "60"
-    matcher             = "301"
     protocol            = "HTTP"
-    timeout             = "3"
+    timeout             = "5"
     path                = "/"
     unhealthy_threshold = "2"
   }
