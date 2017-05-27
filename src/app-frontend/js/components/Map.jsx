@@ -147,7 +147,7 @@ export default class Map extends Component {
             // DSM
 
             if(singleLayer.dsm.colorRampChecked) {
-                let dsmUrl = 'tms/png/isprs-potsdam-dsm-gt/{z}/{x}/{y}';
+                let dsmUrl = 'tms/png/isprs-potsdam-dsm/{z}/{x}/{y}';
                 layers.push([<TileLayer
                                  key="dsmColorRampLayer"
                                  url={dsmUrl}
@@ -158,7 +158,7 @@ export default class Map extends Component {
             }
 
             if(singleLayer.dsm.hillshadeChecked) {
-                let dsmUrl = 'tms/hillshade/isprs-potsdam-dsm-gt/{z}/{x}/{y}';
+                let dsmUrl = 'tms/hillshade/isprs-potsdam-dsm/{z}/{x}/{y}';
                 layers.push([<TileLayer
                                  key="dsmHillshadeLayer"
                                  url={dsmUrl}
