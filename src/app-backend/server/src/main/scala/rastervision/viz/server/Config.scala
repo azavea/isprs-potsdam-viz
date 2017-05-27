@@ -12,6 +12,7 @@ trait Config {
   protected case class HttpConfig(interface: String, port: Int)
 
   private val config = ConfigFactory.load()
+  println(config.as[String]("server.catalog"))
   protected val httpConfig = config.as[HttpConfig]("http")
   val catalogPath = config.as[String]("server.catalog")
 

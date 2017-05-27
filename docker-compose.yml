@@ -30,6 +30,7 @@ services:
       - "9000:9000"
     volumes:
         - ./src/app-backend/:/opt/app-backend/
+        - ./data/catalog-hadoop:/opt/catalog-hadoop/
         - ./data/catalog:/opt/catalog/
         - ./src/app-backend/.sbt:/root/.sbt
         - /home/vagrant/.ivy2/:/root/.ivy2

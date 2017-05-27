@@ -2,8 +2,8 @@
 # Security group resources
 #
 resource "aws_security_group" "server_app_alb" {
-  #  vpc_id = "${module.vpc.id}"
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${module.vpc.id}"
+  # vpc_id = "${var.vpc_id}"
 
   tags {
     Name        = "sgAppServerLoadBalancer"
@@ -17,8 +17,8 @@ resource "aws_security_group" "server_app_alb" {
 #
 resource "aws_alb" "server_app" {
   security_groups = ["${aws_security_group.server_app_alb.id}"]
-  #  subnets         = ["${module.vpc.public_subnet_ids}"]
-  subnets = ["${var.vpc_subnet_ids}"]
+  subnets         = ["${module.vpc.public_subnet_ids}"]
+  # subnets = ["${var.vpc_subnet_ids}"]
   name            = "${var.project_id}-alb${var.environment}AppServer"
 
   tags {
@@ -35,21 +35,50 @@ resource "aws_alb_target_group" "server_app_http" {
   health_check {
     healthy_threshold   = "3"
     interval            = "60"
-    matcher             = "301"
     protocol            = "HTTP"
-    timeout             = "3"
+    timeout             = "5"
     path                = "/"
     unhealthy_threshold = "2"
   }
   port     = "80"
   protocol = "HTTP"
-  #  vpc_id   = "${module.vpc.id}"
-  vpc_id = "${var.vpc_id}"
+  vpc_id   = "${module.vpc.id}"
+  # vpc_id = "${var.vpc_id}"
   tags {
     Name        = "tg${var.project_id}-${var.environment}HTTPAppServer"
     Project     = "${var.project}"
     Environment = "${var.environment}"
   }
+}
+
+resource "aws_security_group_rule" "alb_api_server_http_ingress" {
+  type        = "ingress"
+  from_port   = 80
+  to_port     = 80
+  protocol    = "tcp"
+  cidr_blocks = "${var.server_app_alb_ingress_cidr_block}"
+
+  security_group_id = "${aws_security_group.server_app_alb.id}"
+}
+
+# resource "aws_security_group_rule" "alb_api_server_https_ingress" {
+#   type        = "ingress"
+#   from_port   = 443
+#   to_port     = 443
+#   protocol    = "tcp"
+#   cidr_blocks = "${var.api_server_alb_ingress_cidr_block}"
+
+#   security_group_id = "${aws_security_group.server_app_alb.id}"
+# }
+
+resource "aws_security_group_rule" "alb_api_server_container_instance_all_egress" {
+  type      = "egress"
+  from_port = 0
+  to_port   = 65535
+  protocol  = "tcp"
+
+  security_group_id        = "${aws_security_group.server_app_alb.id}"
+  source_security_group_id = "${aws_security_group.container_instance.id}"
 }
 
 # resource "aws_alb_target_group" "server_app_https" {

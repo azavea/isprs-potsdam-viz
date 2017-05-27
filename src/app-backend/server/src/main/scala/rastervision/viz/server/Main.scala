@@ -13,7 +13,6 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.serializer.KryoSerializer
 
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object AkkaSystem {
@@ -31,23 +30,30 @@ object Main extends Router with Config {
   lazy val (attributeStore, tileReader, /*layerReader,*/ collectionReader) =
     if(isS3Catalog) {
       val as = S3AttributeStore(S3CatalogPath._1, S3CatalogPath._2)
-      println(s"#### as.layerIds: ${as.layerIds}")
+      println(s"#### S3 as.layerIds: ${as.layerIds}")
       val vr = new S3ValueReader(as)
       val cr = S3CollectionLayerReader(as)
 
       (as, vr, cr)
-    } else {
-      val conf = new SparkConf()
-        .setIfMissing("spark.master", "local[*]")
-        .setAppName("RasterVision Viz Server")
-
-
+    } else if(catalogPath.startsWith("file") || catalogPath.startsWith("hdfs")) {
+      val conf = new SparkConf().setIfMissing("spark.master", "local[*]") .setAppName("RasterVision Viz Server")
       implicit val sc = new SparkContext(conf)
+
+      val as = HadoopAttributeStore(catalogPath)
+      val vr = HadoopValueReader(as)
+      val cr = HadoopCollectionLayerReader(as)
+
+      sc.stop
+
+      println(s"#### HADOOP as.layerIds: ${as.layerIds}")
+
+      (as, vr, cr)
+    } else {
       val as = FileAttributeStore(catalogPath)
       val vr = FileValueReader(as)
       val cr = FileCollectionLayerReader(as)
 
-      sc.stop
+      println(s"#### FILE as.layerIds: ${as.layerIds}")
 
       (as, vr, cr)
     }

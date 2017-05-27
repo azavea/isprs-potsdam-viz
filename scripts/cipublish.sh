@@ -28,14 +28,14 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         usage
     else
         if [[ -n "${AWS_ECR_ENDPOINT}" ]]; then
-            # echo "Building application JAR"
+            # # echo "Building application JAR"
             # docker-compose \
             #     run --rm --no-deps api-server server/clean
             # docker-compose \
             #     run --rm --no-deps api-server server/assembly
 
-            Build React application, which assembles the bundle within
-            the container image.
+            # Build React application, which assembles the bundle within
+            # the container image.
             GIT_COMMIT="${GIT_COMMIT}" docker-compose \
                       -f docker-compose.yml \
                       -f docker-compose.test.yml \

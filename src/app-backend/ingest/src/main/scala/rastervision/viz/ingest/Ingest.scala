@@ -75,6 +75,8 @@ object Ingest {
       val sink: LayerSink = {
         if(opts.isS3Catalog) {
           new S3LayerSink(opts.s3CatalogPath._1, opts.s3CatalogPath._2)
+        } else if(opts.catalogPath.startsWith("file") || opts.catalogPath.startsWith("hdfs")) {
+          new HadoopLayerSink(opts.catalogPath)
         } else {
           new FileLayerSink(opts.catalogPath)
         }
@@ -139,6 +141,24 @@ class FileLayerSink(catalogPath: String)(implicit sc: SparkContext) extends Laye
   val as = FileAttributeStore(catalogPath)
   val writer = FileLayerWriter(as)
   val deleter = FileLayerDeleter(as)
+
+  protected def saveLayer[
+    V <: CellGrid: TypeTag: ? => TileMergeMethods[V]: ? => TilePrototypeMethods[V]: AvroRecordCodec: ClassTag
+  ](layerId: LayerId, tileLayer: RDD[(SpatialKey, V)] with Metadata[TileLayerMetadata[SpatialKey]])(hook: HookFunc[V]): Unit = {
+    // Clobber
+    if(as.layerExists(layerId)) {
+      deleter.delete(layerId)
+    }
+
+    writer.write(layerId, tileLayer, ZCurveKeyIndexMethod)
+    hook(layerId, tileLayer, as)
+  }
+}
+
+class HadoopLayerSink(catalogPath: String)(implicit sc: SparkContext) extends LayerSink {
+  val as = HadoopAttributeStore(catalogPath)
+  val writer = HadoopLayerWriter(catalogPath, as)
+  val deleter = HadoopLayerDeleter(as)
 
   protected def saveLayer[
     V <: CellGrid: TypeTag: ? => TileMergeMethods[V]: ? => TilePrototypeMethods[V]: AvroRecordCodec: ClassTag

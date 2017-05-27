@@ -23,7 +23,7 @@ object ImageryIngest {
     val layers =
       List(
         ("rgb", source.mapValues(_.subsetBands(0, 1, 2))),
-        ("irrg", source.mapValues(_.subsetBands(3, 1, 2))),
+        ("irrg", source.mapValues(_.subsetBands(3, 0, 1))),
         ("rir", source.mapValues(_.subsetBands(0, 3)))
       )
 

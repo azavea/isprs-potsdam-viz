@@ -71,6 +71,7 @@ object IngestConf {
              """.stripMargin
 
   def nextOption(opts: Options, list: Seq[String]): Options = {
+    println(list.mkString("|"))
     list.toList match {
       case Nil => opts
       case "--inputPath" :: value :: tail =>

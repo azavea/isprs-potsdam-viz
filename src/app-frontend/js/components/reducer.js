@@ -45,6 +45,11 @@ const initAppPage = {
         hillshadeChecked: false,
         opacity: 1.0
       },
+      dsmGt: {
+        colorRampChecked: false,
+        hillshadeChecked: false,
+        opacity: 1.0
+      },
       labels: {
         checked: false,
         opacity: 1.0
@@ -53,7 +58,7 @@ const initAppPage = {
         unet: {
           name: "UNET",
           predictions: {
-            allChecked: true,
+            allChecked: false,
             incorrectChecked: false,
             opacity: 0.7
           },
@@ -75,12 +80,29 @@ const initAppPage = {
             checked: false,
             opacity: 0.9
           }
-        }
-      },
-        ab: {
+        },
+        fcndsm: {
+          name: "FCNDSM",
+          predictions: {
+            allChecked: false,
+            incorrectChecked: false,
+            opacity: 0.7
+          },
+          probabilities:  {
+            labelId: 1,
             checked: false,
             opacity: 0.9
+          }
         }
+      },
+      ab: {
+        checked: false,
+        opacity: 0.9
+      },
+      abDsm: {
+        checked: false,
+        opacity: 0.9
+      }
     },
     changeDetection: {
         active: false,
@@ -204,17 +226,32 @@ export default function appPage(state = initAppPage, action) {
             var colorRampChecked = action.payload == "COLORRAMP";
             var hillshadeChecked = action.payload == "HILLSHADE";
 
-            newState = immutable.set(newState,
-                                     'singleLayer.dsm.colorRampChecked',
-                                     colorRampChecked);
-            newState = immutable.set(newState,
-                                     'singleLayer.dsm.hillshadeChecked',
-                                     hillshadeChecked);
+            if(action.isGt) {
+                newState = immutable.set(newState,
+                                         'singleLayer.dsmGt.colorRampChecked',
+                                         colorRampChecked);
+                newState = immutable.set(newState,
+                                         'singleLayer.dsmGt.hillshadeChecked',
+                                         hillshadeChecked);
+            } else {
+                newState = immutable.set(newState,
+                                         'singleLayer.dsm.colorRampChecked',
+                                         colorRampChecked);
+                newState = immutable.set(newState,
+                                         'singleLayer.dsm.hillshadeChecked',
+                                         hillshadeChecked);
+            }
             return newState;
         case SET_DSM_OPACITY:
-            return immutable.set(newState,
-                                 'singleLayer.dsm.opacity',
-                                 action.payload);
+            if(action.isGt) {
+                return immutable.set(newState,
+                                     'singleLayer.dsmGt.opacity',
+                                     action.payload);
+            } else {
+                return immutable.set(newState,
+                                     'singleLayer.dsm.opacity',
+                                     action.payload);
+            }
         case SET_LABELS_TYPE:
             // May be "NONE"
             var checked = action.payload == "CHECKED";
@@ -273,14 +310,27 @@ export default function appPage(state = initAppPage, action) {
             // May be "NONE"
             var checked = action.payload == "CHECKED";
 
-            newState = immutable.set(newState,
+            if(action.isDsm) {
+                newState = immutable.set(newState,
+                                     'singleLayer.abDsm.checked',
+                                     checked);
+            } else {
+                newState = immutable.set(newState,
                                      'singleLayer.ab.checked',
                                      checked);
+            }
+
             return newState;
         case SET_AB_OPACITY:
-            return immutable.set(newState,
-                                 'singleLayer.ab.opacity',
-                                 action.payload);
+            if(action.isDsm) {
+              return immutable.set(newState,
+                                   'singleLayer.abDsm.opacity',
+                                   action.payload);
+            } else {
+              return immutable.set(newState,
+                                   'singleLayer.ab.opacity',
+                                   action.payload);
+            }
         default:
             console.log("UNKOWN ACTION: " + action.type);
             return newState;

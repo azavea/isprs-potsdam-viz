@@ -1,6 +1,6 @@
-# GeoTrellis PointCloud Demo
+# Raster Vision: Visualization
 
-This is an application for demoing point cloud support in GeoTrellis applications.
+This is an application for viewing the ISPRS Potsdamn dataset and results from Azavea's Raster Vision project.
 
 ### Requirements
 
@@ -62,47 +62,21 @@ The other project scripts are meant to execute in the VM in the `/vagrant` direc
 |local-run         |Run benchmark job locally                                   |
 |upload-code       |Upload code and scripts to S3                               |
 |create-cluster    |Create EMR cluster with configurations                      |
-|load-hdfs         |Load input source into hdfs                                 |
-|ingest-idw        |IDW ingest with or without pyramiding                       |
-|ingest-tin        |TIN ingest with or without pyramiding                       |
-|ingest-pc         |Raw PointCloud ingest without pyramiding yet                |
-|local-ingest-idw  |Local IDW ingest with or without pyramiding                 |
-|run-server        |Run server on EMR master                                    |
-|local-run-server  |Run server locally                                          |
+|ingest-dsm        |IDW ingest with or without pyramiding                       |
+|ingest-labels     |Raw PointCloud ingest without pyramiding yet                |
+|ingest-rgbir      |Local IDW ingest with or without pyramiding                 |
+|ingest-unet       |Run server on EMR master                                    |
+|ingest-fcn        |TIN ingest with or without pyramiding                       |
 |wait              |Wait for last step to finish                                |
 |proxy             |Create SOCKS proxy for active cluster                       |
 |ssh               |SSH into cluster master                                     |
 |get-logs          |Get spark history logs from active cluster                  |
-|update-route53    |Update Route53 DNS record with active cluster ip            |
 |clean             |Clean local project                                         |
-
-## Ingest jobs options
-
-[IngestConf.scala](https://github.com/pomadchin/geotrellis-pointcloud-demo/blob/master/ingest/src/main/scala/com/azavea/pointcloud/ingest/conf/IngestConf.scala#L7-L22)
-
-| Command          | Description
-|------------------|------------------------------------------------------------|
-|inputPath         |default: /data/test                                         |
-|catalogPath       |default: /data/catalog                                      |
-|layerName         |default: elevation                                          |
-|persist           |default: true                                               |
-|pyramid           |default: true                                               |
-|zoomed            |default: true                                               |
-|cellSize          |default: 0.5,0.5                                            |
-|numPartitions     |default: 5000                                               |
-|minZoom           |default: 7                                                  |
-|maxValue          |default: None                                               |
-|destCrs           |default: EPSG:3857                                          |
-|extent            |default: None                                               |
-|inputCrs          |default: None                                               |
-|testOutput        |default: None                                               |
 
 
 ## Running on EMR
 
 _Requires_: Reasonably up to date [`aws-cli`](https://aws.amazon.com/cli/).
-
-EMR boostrup script would build PDAL with JNI bindings on each node.
 
 ### Configuration
 
@@ -116,9 +90,7 @@ You will need to modify `config-aws.mk` to reflect your credentials and your VPC
 
 ```bash
 make upload-code && make create-cluster
-make load-hdfs # after launching cluster
-make ingest-idw
-make run-server # after completing ingest
+make ingest-rgbir
 ```
 
 ## Licence

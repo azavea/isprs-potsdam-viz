@@ -38,6 +38,13 @@ export default class SingleLayer extends Component {
         this.checkNoDsm = this.checkNoDsm.bind(this);
         this.handleDsmOpacityChange = this.handleDsmOpacityChange.bind(this);
 
+        // DSM - GT
+
+        this.checkGtColorRamp = this.checkGtColorRamp.bind(this);
+        this.checkGtHillshade = this.checkGtHillshade.bind(this);
+        this.checkGtNoDsm = this.checkGtNoDsm.bind(this);
+        this.handleDsmGtOpacityChange = this.handleDsmGtOpacityChange.bind(this);
+
         // Labels
 
         this.checkLabels = this.checkLabels.bind(this);
@@ -63,6 +70,12 @@ export default class SingleLayer extends Component {
         this.checkAb = this.checkAb.bind(this);
         this.checkNoAb = this.checkNoAb.bind(this);
         this.handleAbOpacityChange = this.handleAbOpacityChange.bind(this);
+
+        // ABDSM
+
+        this.checkAbDsm = this.checkAbDsm.bind(this);
+        this.checkNoAbDsm = this.checkNoAbDsm.bind(this);
+        this.handleAbDsmOpacityChange = this.handleAbDsmOpacityChange.bind(this);
     }
 
     // Imagery
@@ -117,6 +130,28 @@ export default class SingleLayer extends Component {
     handleDsmOpacityChange(value) {
         const { dispatch } = this.props;
         dispatch(setDsmOpacity(value));
+    }
+
+    // GT DSM
+
+    checkGtColorRamp() {
+        const { dispatch } = this.props;
+        dispatch(setDsmType("COLORRAMP", "gt"));
+    }
+
+    checkGtHillshade() {
+        const { dispatch } = this.props;
+        dispatch(setDsmType("HILLSHADE", "gt"));
+    }
+
+    checkGtNoDsm() {
+        const { dispatch } = this.props;
+        dispatch(setDsmType("NONE", "gt"));
+    }
+
+    handleDsmGtOpacityChange(value) {
+        const { dispatch } = this.props;
+        dispatch(setDsmOpacity(value, "gt"));
     }
 
     // Labels
@@ -213,6 +248,23 @@ export default class SingleLayer extends Component {
         dispatch(setAbOpacity(value));
     }
 
+    // ABDSM
+
+    checkAbDsm() {
+        const { dispatch } = this.props;
+        dispatch(setAbType("CHECKED", "dsm"));
+    }
+
+    checkNoAbDsm() {
+        const { dispatch } = this.props;
+        dispatch(setAbType("NONE", "dsm"));
+    }
+
+    handleAbDsmOpacityChange(value) {
+        const { dispatch } = this.props;
+        dispatch(setAbOpacity(value, "dsm"));
+    }
+
     isActive(b) {
         return b ? "pt-active" : "";
     }
@@ -225,9 +277,11 @@ export default class SingleLayer extends Component {
         const {
             imagery,
             dsm,
+            dsmGt,
             labels,
             models,
-            ab } = this.props;
+            ab,
+            abDsm } = this.props;
 
         var modelSections = [];
         for (var property in models) {
@@ -275,7 +329,7 @@ export default class SingleLayer extends Component {
                         <Button
                             active={probabilities.labelId == 2}
                             onClick={handleLowVeg}
-                            text="Low Vegitation"
+                            text="Low Vegatation"
                             className={this.isActiveLabel(probabilities.labelId, 2)}
                         />
                         <Button
@@ -455,6 +509,40 @@ export default class SingleLayer extends Component {
                     </div>
                 </div>
                 <div className="option-section">
+                    <label htmlFor="" className="primary">DSM - GeoTrellis Generated</label>
+                    <div className="pt-button-group pt-fill">
+                        <Button
+                            active={dsmGt.hillshadeChecked}
+                            onClick={this.checkGtHillshade}
+                            text="Hillshade"
+                            className={this.isActive(dsmGt.hillshadeChecked)}
+                        />
+                        <Button
+                            active={dsmGt.colorRampChecked}
+                            onClick={this.checkGtColorRamp}
+                            text="Ramp"
+                            className={this.isActive(dsmGt.colorRampChecked)}
+                        />
+                        <Button
+                            active={!(dsmGt.colorRampChecked || dsmGt.hillshadeChecked)}
+                            onClick={this.checkGtNoDsm}
+                            text="OFF"
+                            className={this.isActive(!(dsmGt.colorRampChecked || dsmGt.hillshadeChecked))}
+                        />
+                    </div>
+                    <div className="slider-section">
+                        <label htmlFor="" className="secondary">Opacity</label>
+                        <Slider
+                            min={0}
+                            max={1}
+                            stepSize={0.02}
+                            renderLabel={false}
+                            value={dsmGt.opacity}
+                            onChange={this.handleDsmGtOpacityChange}
+                        />
+                    </div>
+                </div>
+                <div className="option-section">
                     <label htmlFor="" className="primary">Labels</label>
                     <div className="pt-button-group pt-fill">
                         <Button
@@ -511,6 +599,34 @@ export default class SingleLayer extends Component {
                         />
                     </div>
                 </div>
+                <div className="option-section">
+                    <label htmlFor="" className="primary">FCN vs FCN w/ DSM</label>
+                    <div className="pt-button-group pt-fill">
+                        <Button
+                            active={abDsm.checked}
+                            onClick={this.checkAbDsm}
+                            text="ON"
+                            className={this.isActive(abDsm.checked)}
+                        />
+                        <Button
+                            active={!abDsm.checked}
+                            onClick={this.checkNoAbDsm}
+                            text="OFF"
+                            className={this.isActive(!abDsm.checked)}
+                        />
+                    </div>
+                    <div className="slider-section">
+                        <label htmlFor="" className="secondary">Opacity</label>
+                        <Slider
+                            min={0}
+                            max={1}
+                            stepSize={0.02}
+                            renderLabel={false}
+                            value={abDsm.opacity}
+                            onChange={this.handleAbDsmOpacityChange}
+                        />
+                    </div>
+                </div>
             </div>
         );
     }
@@ -520,6 +636,7 @@ SingleLayer.propTypes = {
     dispatch: PropTypes.func.isRequired,
     imagery: PropTypes.object.isRequired,
     dsm: PropTypes.object.isRequired,
+    dsmGt: PropTypes.object.isRequired,
     labels: PropTypes.object.isRequired,
     models: PropTypes.object.isRequired
 }

@@ -134,9 +134,11 @@ class App extends Component {
                                     dispatch={dispatch}
                                     imagery={singleLayer.imagery}
                                     dsm={singleLayer.dsm}
+                                    dsmGt={singleLayer.dsmGt}
                                     labels={singleLayer.labels}
                                     models={singleLayer.models}
                                     ab={singleLayer.ab}
+                                    abDsm={singleLayer.abDsm}
                                 />
                                 {/* </TabPanel>
                                 <TabPanel>

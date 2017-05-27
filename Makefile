@@ -29,7 +29,7 @@ upload-code: ${RVVIZ_INGEST_ASSEMBLY} ${RVVIZ_SERVER_ASSEMBLY} deployment/emr/*
 	@aws s3 cp ${RVVIZ_INGEST_ASSEMBLY} ${S3_URI}/
 
 load-local:
-	scripts/load-local.sh
+	scripts/load_development_data.sh
 
 create-cluster:
 	aws emr create-cluster --name "${NAME}" ${COLOR_TAG} \
@@ -62,6 +62,48 @@ ${S3_URI}/${RVVIZ_INGEST_ASSEMBLY_NAME},\
 --inputPath,${INPUT_DSM},\
 --catalogPath,${S3_CATALOG},\
 --layerPrefix,"isprs-potsdam-dsm",\
+--type,"DSM",\
+--numPartitions,2000\
+] | cut -f2 | tee last-step-id.txt
+
+ingest-dsm-gt:
+	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
+--steps Type=CUSTOM_JAR,Name="IngestDEM",Jar=command-runner.jar,Args=[\
+spark-submit,--master,yarn-cluster,\
+--class,rastervision.viz.ingest.Ingest,\
+--driver-memory,${DRIVER_MEMORY},\
+--driver-cores,${DRIVER_CORES},\
+--executor-memory,${EXECUTOR_MEMORY},\
+--executor-cores,${EXECUTOR_CORES},\
+--conf,spark.driver.maxResultSize=3g,\
+--conf,spark.dynamicAllocation.enabled=true,\
+--conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
+--conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
+${S3_URI}/${RVVIZ_INGEST_ASSEMBLY_NAME},\
+--inputPath,${INPUT_DSMGT},\
+--catalogPath,${S3_CATALOG},\
+--layerPrefix,"isprs-potsdam-dsm-gt",\
+--type,"DSM",\
+--numPartitions,2000\
+] | cut -f2 | tee last-step-id.txt
+
+ingest-dsm-gtn:
+	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
+--steps Type=CUSTOM_JAR,Name="IngestDEM",Jar=command-runner.jar,Args=[\
+spark-submit,--master,yarn-cluster,\
+--class,rastervision.viz.ingest.Ingest,\
+--driver-memory,${DRIVER_MEMORY},\
+--driver-cores,${DRIVER_CORES},\
+--executor-memory,${EXECUTOR_MEMORY},\
+--executor-cores,${EXECUTOR_CORES},\
+--conf,spark.driver.maxResultSize=3g,\
+--conf,spark.dynamicAllocation.enabled=true,\
+--conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
+--conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
+${S3_URI}/${RVVIZ_INGEST_ASSEMBLY_NAME},\
+--inputPath,${INPUT_DSMGTN},\
+--catalogPath,${S3_CATALOG},\
+--layerPrefix,"isprs-potsdam-dsm-gtn",\
 --type,"DSM",\
 --numPartitions,2000\
 ] | cut -f2 | tee last-step-id.txt
@@ -150,6 +192,26 @@ ${S3_URI}/${RVVIZ_INGEST_ASSEMBLY_NAME},\
 --numPartitions,5000\
 ] | cut -f2 | tee last-step-id.txt
 
+ingest-fcndsm:
+	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
+--steps Type=CUSTOM_JAR,Name="IngestFCN",Jar=command-runner.jar,Args=[\
+spark-submit,--master,yarn-cluster,\
+--class,rastervision.viz.ingest.Ingest,\
+--driver-memory,${DRIVER_MEMORY},\
+--driver-cores,${DRIVER_CORES},\
+--executor-memory,${EXECUTOR_MEMORY},\
+--executor-cores,${EXECUTOR_CORES},\
+--conf,spark.driver.maxResultSize=3g,\
+--conf,spark.dynamicAllocation.enabled=true,\
+--conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
+--conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
+${S3_URI}/${RVVIZ_INGEST_ASSEMBLY_NAME},\
+--inputPath,${INPUT_RESULT_FCNDSM},\
+--catalogPath,${S3_CATALOG},\
+--layerPrefix,"isprs-potsdam-fcndsm",\
+--type,"MODELRESULT",\
+--numPartitions,5000\
+] | cut -f2 | tee last-step-id.txt
 
 wait: INTERVAL:=60
 wait: STEP_ID=$(shell cat last-step-id.txt)
@@ -179,6 +241,9 @@ proxy:
 ssh:
 	aws emr ssh --cluster-id ${CLUSTER_ID} --key-pair-file "${HOME}/${EC2_KEY}.pem"
 
+local-ingest-all: local-ingest-dsm local-ingest-dsm-gt local-ingest-rgbir local-ingest-labels local-ingest-fcn local-ingest-unet
+	@echo ${LOCAL_CATALOG}
+
 local-ingest-dsm: ${RVVIZ_INGEST_ASSEMBLY}
 	spark-submit --name "DEM Ingest ${NAME}" --master "local[4]" --driver-memory 4G --class rastervision.viz.ingest.Ingest \
 	--conf spark.driver.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
@@ -187,6 +252,28 @@ local-ingest-dsm: ${RVVIZ_INGEST_ASSEMBLY}
 	--inputPath ${LOCAL_DSM_PATH} \
 	--catalogPath ${LOCAL_CATALOG} \
 	--layerPrefix "isprs-potsdam-dsm" \
+	--numPartitions 50 \
+	--type "DSM"
+
+local-ingest-dsm-gt: ${RVVIZ_INGEST_ASSEMBLY}
+	spark-submit --name "DEM Ingest ${NAME}" --master "local[4]" --driver-memory 4G --class rastervision.viz.ingest.Ingest \
+	--conf spark.driver.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
+	--conf spark.executor.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
+	${RVVIZ_INGEST_ASSEMBLY} \
+	--inputPath ${LOCAL_DSMGT_PATH} \
+	--catalogPath ${LOCAL_CATALOG} \
+	--layerPrefix "isprs-potsdam-dsm-gt" \
+	--numPartitions 50 \
+	--type "DSM"
+
+local-ingest-dsm-gtn: ${RVVIZ_INGEST_ASSEMBLY}
+	spark-submit --name "DEM Ingest ${NAME}" --master "local[4]" --driver-memory 4G --class rastervision.viz.ingest.Ingest \
+	--conf spark.driver.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
+	--conf spark.executor.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
+	${RVVIZ_INGEST_ASSEMBLY} \
+	--inputPath ${LOCAL_DSMGTN_PATH} \
+	--catalogPath ${LOCAL_CATALOG} \
+	--layerPrefix "isprs-potsdam-dsm-gtn" \
 	--numPartitions 50 \
 	--type "DSM"
 
@@ -223,6 +310,17 @@ local-ingest-fcn: ${RVVIZ_INGEST_ASSEMBLY}
 	--numPartitions 50 \
 	--type "MODELRESULT"
 
+local-ingest-fcndsm: ${RVVIZ_INGEST_ASSEMBLY}
+	spark-submit --name "FCN Ingest ${NAME}" --master "local[4]" --driver-memory 4G --class rastervision.viz.ingest.Ingest \
+	--conf spark.driver.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
+	--conf spark.executor.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
+	${RVVIZ_INGEST_ASSEMBLY} \
+	--inputPath ${LOCAL_FCNDSM_PATH} \
+	--catalogPath ${LOCAL_CATALOG} \
+	--layerPrefix "isprs-potsdam-fcndsm" \
+	--numPartitions 50 \
+	--type "MODELRESULT"
+
 local-ingest-unet: ${RVVIZ_INGEST_ASSEMBLY}
 	spark-submit --name "UNET Ingest ${NAME}" --master "local[4]" --driver-memory 4G --class rastervision.viz.ingest.Ingest \
 	--conf spark.driver.extraJavaOptions="-Djava.library.path=/usr/local/lib" \
@@ -240,4 +338,4 @@ get-logs:
 	@mkdir -p  logs/$(CLUSTER_ID)
 	@aws emr get --cluster-id $(CLUSTER_ID) --key-pair-file "${HOME}/${EC2_KEY}.pem" --src "/tmp/spark-logs/" --dest logs/$(CLUSTER_ID)
 
-.PHONY: local-ingest ingest local-tile-server update-route53 get-logs
+.PHONY: local-ingest ingest get-logs
