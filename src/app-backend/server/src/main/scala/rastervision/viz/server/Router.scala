@@ -290,7 +290,7 @@ trait Router extends Directives with Cache.CacheSupport with AkkaSystem.LoggerEx
       attributeStore
         .read[Histogram[Double]](LayerId(layerId.name, 0), "histogram")
         .asInstanceOf[StreamingHistogram]
-        .quantileBreaks(50)
+        .quantileBreaks(100)
 
     val ramp =
       ColorRampMap

@@ -22,6 +22,7 @@ export S3_CATALOG := s3://otid-data/viz/catalog
 export INPUT_DSM := s3://otid-data/input/1_DSM_normalisation_geotiff-with-geo/
 export INPUT_DSMGT := s3://otid-data/input/geotrellis_generated_dsm/
 export INPUT_DSMGTN := s3://otid-data/input/geotrellis_generated_dsm_normalized/
+export INPUT_DSMV2 := s3://otid-data/input/DSM_geotrellis_generated_v2/
 export INPUT_RGBIR := s3://otid-data/input/4_Ortho_RGBIR_geotiff/
 export INPUT_LABEL := s3://otid-data/input/5_Labels_for_participants_geotiff/
 export INPUT_RESULT_FCN := s3://otid-data/input/viz/fcn_results_4_7_17/

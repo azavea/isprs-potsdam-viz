@@ -108,6 +108,28 @@ ${S3_URI}/${RVVIZ_INGEST_ASSEMBLY_NAME},\
 --numPartitions,2000\
 ] | cut -f2 | tee last-step-id.txt
 
+ingest-dsm-v2:
+	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
+--steps Type=CUSTOM_JAR,Name="IngestDEM",Jar=command-runner.jar,Args=[\
+spark-submit,--master,yarn-cluster,\
+--class,rastervision.viz.ingest.Ingest,\
+--driver-memory,${DRIVER_MEMORY},\
+--driver-cores,${DRIVER_CORES},\
+--executor-memory,${EXECUTOR_MEMORY},\
+--executor-cores,${EXECUTOR_CORES},\
+--conf,spark.driver.maxResultSize=3g,\
+--conf,spark.dynamicAllocation.enabled=true,\
+--conf,spark.yarn.executor.memoryOverhead=${YARN_OVERHEAD},\
+--conf,spark.yarn.driver.memoryOverhead=${YARN_OVERHEAD},\
+${S3_URI}/${RVVIZ_INGEST_ASSEMBLY_NAME},\
+--inputPath,${INPUT_DSMV2},\
+--catalogPath,${S3_CATALOG},\
+--layerPrefix,"isprs-potsdam-dsm-v2",\
+--type,"DSM",\
+--numPartitions,2000\
+] | cut -f2 | tee last-step-id.txt
+
+
 ingest-rgbir:
 	aws emr add-steps --output text --cluster-id ${CLUSTER_ID} \
 --steps Type=CUSTOM_JAR,Name="IngestRGBIR",Jar=command-runner.jar,Args=[\
