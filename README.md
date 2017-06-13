@@ -24,10 +24,10 @@ Note: this will destroy the VM's existing Docker container before rebuilding it.
 #### To run just the UI server
 
 ```
-scripts/setup.sh
+./scripts/setup.sh
 vagrant up
 vagrant ssh
-scripts/app-server.sh
+./scripts/app-server.sh
 ```
 
 #### Downloading test data
