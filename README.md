@@ -27,7 +27,7 @@ Note: this will destroy the VM's existing Docker container before rebuilding it.
 ./scripts/setup.sh
 vagrant up
 vagrant ssh
-./scripts/app-server.sh
+./scripts/server.sh
 ```
 
 #### Downloading test data
