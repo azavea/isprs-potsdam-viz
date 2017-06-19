@@ -9,11 +9,11 @@ Amazon Web Services deployment is driven by [Terraform](https://terraform.io/) a
 
 ## AWS Credentials
 
-Using the AWS CLI, create an AWS profile named `pc-demo`:
+Using the AWS CLI, create an AWS profile named `geotrellis`:
 
 ```bash
 $ vagrant ssh
-vagrant@vagrant-ubuntu-trusty-64:~$ aws --profile pc-demo configure
+vagrant@vagrant-ubuntu-trusty-64:~$ aws --profile geotrellis configure
 AWS Access Key ID [********************]:
 AWS Secret Access Key [********************]:
 Default region name [us-east-1]: us-east-1
@@ -29,7 +29,7 @@ Next, use the `infra` wrapper script to lookup the remote state of the infrastru
 ```bash
 vagrant@vagrant-ubuntu-trusty-64:~$ export PGW_COMMUNITY_MAPPING_SETTINGS_BUCKET="staging-pgw-cm-config-us-east-1"
 vagrant@vagrant-ubuntu-trusty-64:~$ export PGW_COMMUNITY_MAPPING_SITE_BUCKET="staging-pgw-cm-site-us-east-1"
-vagrant@vagrant-ubuntu-trusty-64:~$ export AWS_PROFILE="pgw-cm-stg"
+vagrant@vagrant-ubuntu-trusty-64:~$ export AWS_PROFILE="geotrellis"
 vagrant@vagrant-ubuntu-trusty-64:~$ ./scripts/infra.sh plan
 ```
 
