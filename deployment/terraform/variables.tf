@@ -21,9 +21,7 @@ variable "aws_availability_zones" {
 variable "aws_key_name" {}
 
 # ECS
-
-variable "api_server_image" {}
-variable "nginx_image" {}
+variable "image_version" {}
 
 variable "desired_instance_count" {}
 variable aws_ecs_ami {}
