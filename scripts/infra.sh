@@ -35,51 +35,22 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     if [[ -n "${RV_SETTINGS_BUCKET}" ]]; then
         pushd "${TERRAFORM_DIR}"
 
-        # Stop Terraform from trying to apply incorrect state across environments
-        if [ -f ".terraform/terraform.tfstate" ] && ! grep -q "${RV_SETTINGS_BUCKET}" ".terraform/terraform.tfstate"; then
-            echo "ERROR: Incorrect target environment detected in Terraform state! Please run"
-            echo "       the following command before proceeding:"
-            echo
-            echo "  rm -rf terraform/.terraform"
-            echo
-           exit 1
-        fi
-
         aws s3 cp "s3://${RV_SETTINGS_BUCKET}/terraform/terraform.tfvars" "${RV_SETTINGS_BUCKET}.tfvars"
 
-        terraform remote config \
-                  -backend="s3" \
-                  -backend-config="region=us-east-1" \
-                  -backend-config="bucket=${RV_SETTINGS_BUCKET}" \
-                  -backend-config="key=terraform/state" \
-                  -backend-config="encrypt=true"
-
         case "${1}" in
-            fmt)
-                terraform "$@"
-                ;;
-            taint)
-                terraform "$@"
-                ;;
-            remote-push)
-                terraform remote push
-                ;;
             plan)
-                terraform get -update
+                rm -rf .terraform terraform.tfstate* 
+                terraform init \
+                  -backend-config="bucket=${RV_SETTINGS_BUCKET}" \
+                  -backend-config="key=terraform/state"
+
                 terraform plan \
                           -var-file="${RV_SETTINGS_BUCKET}.tfvars" \
                           -var="git_commit=${GIT_COMMIT}" \
                           -out="${RV_SETTINGS_BUCKET}.tfplan"
                 ;;
-            destroy)
-                terraform get -update
-                terraform destroy -var-file="${RV_SETTINGS_BUCKET}.tfvars"
-                terraform remote push
-                ;;
             apply)
-                terraform get -update
                 terraform apply "${RV_SETTINGS_BUCKET}.tfplan"
-                terraform remote push
                 ;;
             *)
                 echo "ERROR: I don't have support for that Terraform subcommand!"

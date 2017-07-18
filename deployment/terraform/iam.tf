@@ -66,6 +66,6 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_logs_policy_container_inst
 }
 
 resource "aws_iam_instance_profile" "container_instance" {
-  name  = "${aws_iam_role.container_instance_ec2.name}"
-  roles = ["${aws_iam_role.container_instance_ec2.name}"]
+  name = "${aws_iam_role.container_instance_ec2.name}"
+  role = "${aws_iam_role.container_instance_ec2.name}"
 }

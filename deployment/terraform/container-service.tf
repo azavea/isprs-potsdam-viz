@@ -4,7 +4,6 @@
 
 # ECS cluster is only a name that ECS machines may join
 resource "aws_ecs_cluster" "container_instance" {
-
   lifecycle {
     create_before_destroy = true
   }
@@ -143,6 +142,7 @@ resource "aws_autoscaling_group" "ecs" {
   min_size                  = "${var.desired_instance_count}"
   max_size                  = "${var.desired_instance_count}"
   vpc_zone_identifier       = ["${module.vpc.private_subnet_ids}"]
+
   # vpc_zone_identifier       = ["${var.vpc_subnet_ids}"]
 
   tag {
@@ -150,13 +150,11 @@ resource "aws_autoscaling_group" "ecs" {
     value               = "${var.project_id}-ContainerInstance"
     propagate_at_launch = true
   }
-
   tag {
     key                 = "Project"
     value               = "${var.project}"
     propagate_at_launch = true
   }
-
   tag {
     key                 = "Environment"
     value               = "${var.environment}"
