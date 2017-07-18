@@ -1,5 +1,5 @@
 - src: azavea.pip
-  version: 0.1.1
+  version: 1.0.0
 
 - src: azavea.docker
   version: 2.2.0
