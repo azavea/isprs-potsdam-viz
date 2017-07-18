@@ -71,3 +71,9 @@ variable vpc_bastion_instance_type {}
 variable server_app_alb_ingress_cidr_block {
   default = ["0.0.0.0/0"]
 }
+
+# Route53
+
+variable "route53_external_hosted_zone" {
+  default = "potsdam.geotrellis.io."
+}
