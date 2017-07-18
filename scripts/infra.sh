@@ -46,7 +46,7 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
 
                 terraform plan \
                           -var-file="${RV_SETTINGS_BUCKET}.tfvars" \
-                          -var="git_commit=${GIT_COMMIT}" \
+                          -var="image_version=${GIT_COMMIT}" \
                           -out="${RV_SETTINGS_BUCKET}.tfplan"
                 ;;
             apply)
