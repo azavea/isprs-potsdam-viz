@@ -13,29 +13,6 @@ resource "aws_ecs_cluster" "container_instance" {
 
 resource "aws_security_group" "container_instance" {
   vpc_id = "${module.vpc.id}"
-  # vpc_id = "${var.vpc_id}"
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-
-  egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    cidr_blocks     = ["0.0.0.0/0"]
-  }
 
   tags {
     Name        = "sgContainerInstance"
@@ -44,54 +21,40 @@ resource "aws_security_group" "container_instance" {
   }
 }
 
-resource "aws_security_group_rule" "container_instance_http_egress" {
-  type        = "egress"
-  from_port   = 80
-  to_port     = 80
-  protocol    = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]
-
+resource "aws_security_group_rule" "container_instance_all_http_ingress" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
   security_group_id = "${aws_security_group.container_instance.id}"
-}
-
-resource "aws_security_group_rule" "container_instance_https_egress" {
-  type        = "egress"
-  from_port   = 443
-  to_port     = 443
-  protocol    = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]
-
-  security_group_id = "${aws_security_group.container_instance.id}"
+  cidr_blocks       = ["${var.vpc_external_access_cidr_block}"]
 }
 
 resource "aws_security_group_rule" "container_instance_bastion_ssh_ingress" {
-  type      = "ingress"
-  from_port = 22
-  to_port   = 22
-  protocol  = "tcp"
-
+  type                     = "ingress"
+  from_port                = 22
+  to_port                  = 22
+  protocol                 = "tcp"
   security_group_id        = "${aws_security_group.container_instance.id}"
   source_security_group_id = "${module.vpc.bastion_security_group_id}"
 }
 
-resource "aws_security_group_rule" "container_instance_alb_api_server_all_ingress" {
-  type      = "ingress"
-  from_port = 0
-  to_port   = 65535
-  protocol  = "tcp"
-
+resource "aws_security_group_rule" "container_instance_alb_all_ingress" {
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 65535
+  protocol                 = "tcp"
   security_group_id        = "${aws_security_group.container_instance.id}"
   source_security_group_id = "${aws_security_group.server_app_alb.id}"
 }
 
-resource "aws_security_group_rule" "container_instance_alb_api_server_all_egress" {
-  type      = "egress"
-  from_port = 0
-  to_port   = 65535
-  protocol  = "tcp"
-
-  security_group_id        = "${aws_security_group.container_instance.id}"
-  source_security_group_id = "${aws_security_group.server_app_alb.id}"
+resource "aws_security_group_rule" "container_instance_all_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = "${aws_security_group.container_instance.id}"
+  cidr_blocks       = ["${var.vpc_external_access_cidr_block}"]
 }
 
 data "template_file" "container_instance_cloud_config" {
@@ -113,12 +76,12 @@ resource "aws_launch_configuration" "ecs" {
     create_before_destroy = true
   }
 
-  name = "ECS ${aws_ecs_cluster.container_instance.name}"
-  image_id             = "${var.aws_ecs_ami}"
-  instance_type        = "${var.ecs_instance_type}"
-  key_name             = "${var.aws_key_name}"
-  iam_instance_profile = "${aws_iam_instance_profile.container_instance.name}"
-  security_groups      = ["${aws_security_group.container_instance.id}"]
+  name                        = "ECS ${aws_ecs_cluster.container_instance.name}"
+  image_id                    = "${var.aws_ecs_ami}"
+  instance_type               = "${var.ecs_instance_type}"
+  key_name                    = "${var.aws_key_name}"
+  iam_instance_profile        = "${aws_iam_instance_profile.container_instance.name}"
+  security_groups             = ["${aws_security_group.container_instance.id}"]
   associate_public_ip_address = true
 
   #user_data = "${data.template_file.container_instance_cloud_config.rendered}"
