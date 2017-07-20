@@ -23,6 +23,10 @@ variable "aws_key_name" {}
 # ECS
 variable "image_version" {}
 
+variable "ssl_certificate_arn" {
+  default = "arn:aws:acm:us-east-1:279682201306:certificate/7c1d8d7e-b809-44a2-a835-5cdf5a0e9357"
+}
+
 variable "desired_instance_count" {}
 variable aws_ecs_ami {}
 variable ecs_instance_type {}
@@ -60,11 +64,6 @@ variable "vpc_public_subnet_cidr_blocks" {
 
 variable vpc_bastion_ami {}
 variable vpc_bastion_instance_type {}
-
-# variable vpc_id {}
-# variable vpc_subnet_ids {
-#   default = []
-# }
 
 variable server_app_alb_ingress_cidr_block {
   default = ["0.0.0.0/0"]
