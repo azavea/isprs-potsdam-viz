@@ -60,7 +60,7 @@ resource "aws_alb_target_group" "server_app_https" {
     interval            = "30"
     protocol            = "HTTP"
     timeout             = "3"
-    path                = "/healthcheck/"
+    path                = "/"
     unhealthy_threshold = "2"
   }
 
