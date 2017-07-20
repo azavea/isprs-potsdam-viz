@@ -327,23 +327,23 @@ export default class Map extends Component {
                 <ZoomControl position="topright" />
 
                 {/* <TileLayer
-                url="http://tile.stamen.com/terrain-background/{z}/{x}/{y}@2x.jpg"
+                url="https://stamen-tiles-{s}.a.ssl.fastly.net/terrain-background/{z}/{x}/{y}@2x.jpg"
                 /> */}
 
                 {/* <TileLayer
-                url="http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png"
+                url="https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png"
                 /> */}
 
                 <TileLayer
-                    url="http://{s}.tiles.mapbox.com/v3/azavea.map-zbompf85/{z}/{x}/{y}.png"
+                    url="https://{s}.tiles.mapbox.com/v3/azavea.map-zbompf85/{z}/{x}/{y}.png"
                 />
 
                 {/* <TileLayer
-                url="http://c.tiles.mapbox.com/v3/mapbox.world-light/{z}/{x}/{y}.png"
+                url="https://c.tiles.mapbox.com/v3/mapbox.world-light/{z}/{x}/{y}.png"
                 /> */}
 
                 <TileLayer
-                    url="http://tile.stamen.com/toner-labels/{z}/{x}/{y}@2x.png"
+                    url="https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}@2x.png"
                 />
 
                 {layers}
