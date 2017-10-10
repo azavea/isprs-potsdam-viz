@@ -76,7 +76,7 @@ resource "aws_launch_configuration" "ecs" {
     create_before_destroy = true
   }
 
-  name                        = "ECS ${aws_ecs_cluster.container_instance.name}"
+  name_prefix                 = "ECS ${aws_ecs_cluster.container_instance.name}-"
   image_id                    = "${var.aws_ecs_ami}"
   instance_type               = "${var.ecs_instance_type}"
   key_name                    = "${var.aws_key_name}"
