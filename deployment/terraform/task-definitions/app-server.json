@@ -10,14 +10,16 @@
         "name": "nginx",
         "portMappings": [
             {
-                "containerPort": 80,
-                "hostPort": 80
+                "containerPort": 443,
+                "hostPort": 0
             }
         ],
         "logConfiguration": {
-            "logDriver": "syslog",
+            "logDriver": "awslogs",
             "options": {
-                "tag": "nginx"
+                "awslogs-group": "log${environment}PotsdamDemo",
+                "awslogs-region": "${region}",
+                "awslogs-stream-prefix": "nginx"
             }
         }
     },
@@ -30,12 +32,14 @@
         "command": [
             "-Xmx1536m",
             "-jar",
-            "rv-server.jar"
+            "potsdam-server.jar"
         ],
         "logConfiguration": {
-            "logDriver": "syslog",
+            "logDriver": "awslogs",
             "options": {
-                "tag": "api-server"
+                "awslogs-group": "log${environment}PotsdamDemo",
+                "awslogs-region": "${region}",
+                "awslogs-stream-prefix": "api-server"
             }
         }
     }
