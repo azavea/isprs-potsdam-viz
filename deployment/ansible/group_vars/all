@@ -7,4 +7,4 @@ shellcheck_version: "0.3.*"
 terraform_version: "0.9.11"
 
 aws_profile: "geotrellis"
-aws_cli_version: "1.11.30"
+aws_cli_version: "1.11.*"

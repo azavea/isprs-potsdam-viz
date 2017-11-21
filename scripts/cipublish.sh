@@ -2,7 +2,7 @@
 
 set -e
 
-if [[ -n "${PC_DEMO_DEBUG}" ]]; then
+if [[ -n "${POTSDAM_DEBUG}" ]]; then
     set -x
 fi
 
@@ -17,10 +17,10 @@ other artifacts to S3.
 "
 }
 
-if [[ -n "${GIT_COMMIT}" ]]; then
-    GIT_COMMIT="${GIT_COMMIT:0:7}"
+if [[ -n "${TRAVIS_COMMIT}" ]]; then
+    TRAVIS_COMMIT="${TRAVIS_COMMIT:0:7}"
 else
-    GIT_COMMIT="$(git rev-parse --short HEAD)"
+    TRAVIS_COMMIT="$(git rev-parse --short HEAD)"
 fi
 
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
@@ -28,36 +28,29 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         usage
     else
         if [[ -n "${AWS_ECR_ENDPOINT}" ]]; then
-            # # echo "Building application JAR"
-            # docker-compose \
-            #     run --rm --no-deps api-server server/clean
-            # docker-compose \
-            #     run --rm --no-deps api-server server/assembly
+            echo "Building application JAR"
+            docker-compose \
+                run --rm --no-deps api-server server/clean
+            docker-compose \
+                run --rm --no-deps api-server server/assembly
 
-            # Build React application, which assembles the bundle within
-            # the container image.
-            GIT_COMMIT="${GIT_COMMIT}" docker-compose \
-                      -f docker-compose.yml \
-                      -f docker-compose.test.yml \
-                      run --rm --no-deps app-frontend
-
-            echo "Building container images"
-            GIT_COMMIT="${GIT_COMMIT}" docker-compose \
+            echo "Building api-server container image"
+            TRAVIS_COMMIT="${TRAVIS_COMMIT}" docker-compose \
                       -f "${DIR}/../docker-compose.yml" \
                       -f "${DIR}/../docker-compose.test.yml"\
-                      build nginx api-server
+                      build api-server
 
             # Evaluate the return value of the get-login subcommand, which
             # is a docker login command with temporarily ECR credentials.
-            eval "$(aws ecr get-login --region us-east-1)"
+            eval "$(aws ecr get-login --region us-east-1 --no-include-email)"
 
-            docker tag "rastervision-nginx:${GIT_COMMIT}" \
-                   "${AWS_ECR_ENDPOINT}/rastervision-nginx:${GIT_COMMIT}"
-            docker tag "rastervision-api-server:${GIT_COMMIT}" \
-                   "${AWS_ECR_ENDPOINT}/rastervision-api-server:${GIT_COMMIT}"
+            docker tag "potsdam-nginx:${TRAVIS_COMMIT}" \
+                   "${AWS_ECR_ENDPOINT}/potsdam-nginx:${TRAVIS_COMMIT}"
+            docker tag "potsdam-api-server:${TRAVIS_COMMIT}" \
+                   "${AWS_ECR_ENDPOINT}/potsdam-api-server:${TRAVIS_COMMIT}"
 
-            docker push "${AWS_ECR_ENDPOINT}/rastervision-nginx:${GIT_COMMIT}"
-            docker push "${AWS_ECR_ENDPOINT}/rastervision-api-server:${GIT_COMMIT}"
+            docker push "${AWS_ECR_ENDPOINT}/potsdam-nginx:${TRAVIS_COMMIT}"
+            docker push "${AWS_ECR_ENDPOINT}/potsdam-api-server:${TRAVIS_COMMIT}"
 
         else
             echo "ERROR: No AWS_ECR_ENDPOINT variable defined."

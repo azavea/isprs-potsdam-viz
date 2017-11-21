@@ -1,0 +1,4 @@
+*
+
+# Raster Vision server JAR
+!target/scala-2.11/potsdam-server.jar

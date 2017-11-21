@@ -2,7 +2,7 @@
 
 set -e
 
-if [[ -n "${PC_DEMO_DEBUG}" ]]; then
+if [[ -n "${POTSDAM_DEBUG}" ]]; then
     set -x
 fi
 
@@ -19,11 +19,11 @@ then
     then
         usage
     else
-        if (ansible --version | grep -q "ansible 2.2.") || (ansible --version | grep -q "ansible 2.3."); then
+        if (ansible --version | grep -q "ansible 2."); then
             vagrant up --provision
             vagrant ssh -c "cd /vagrant && ./scripts/update.sh"
         else
-            echo "ERROR: Version of Ansible installed locally should be in the 2.2.x series."
+            echo "ERROR: Version of Ansible installed locally should be in the 2.x series."
             exit 1
         fi
     fi

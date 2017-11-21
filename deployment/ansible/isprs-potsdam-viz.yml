@@ -9,6 +9,6 @@
   roles:
     - { role: "azavea.ntp" }
     - { role: "azavea.terraform" }
-    - { role: "pc-demo.aws-cli" }
-    - { role: "pc-demo.docker" }
-    - { role: "pc-demo.shellcheck" }
+    - { role: "isprs-potsdam-viz.awscli" }
+    - { role: "isprs-potsdam-viz.docker" }
+    - { role: "isprs-potsdam-viz.shellcheck" }
