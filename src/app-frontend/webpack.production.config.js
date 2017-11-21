@@ -1,8 +1,6 @@
 const webpack = require('webpack');
 const config = require('./webpack.common.config');
 
-config.output.path = '/usr/src/dist/';
-
 // Transpiling needs to happen first
 config.module.loaders.unshift(
     {
