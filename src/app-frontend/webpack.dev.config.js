@@ -26,7 +26,7 @@ config.module.loaders.unshift(
 );
 
 config.devServer =  {
-  contentBase: './dist',
+  contentBase: '../dist',
   info: true,
   hot: true,
   inline: true,
@@ -34,7 +34,7 @@ config.devServer =  {
   'history-api-fallback': true,
   port: port,
   proxy: {
-    '*': { target: 'http://nginx' }
+    '*': { target: 'http://nginx:443/' }
   }
 };
 
