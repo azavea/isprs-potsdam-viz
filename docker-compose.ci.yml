@@ -1,0 +1,17 @@
+version: '2.1'
+services:
+  terraform:
+    image: "quay.io/azavea/terraform:0.9.11"
+    volumes:
+      - ./:/usr/local/src
+      - ~/.aws:/root/.aws
+    environment:
+      - POTSDAM_DEBUG=1
+      - POTSDAM_SETTINGS_BUCKET=${POTSDAM_SETTINGS_BUCKET:-geotrellis-site-production-config-us-east-1}
+      - TRAVIS_COMMIT=${TRAVIS_COMMIT:-latest}
+      - AWS_PROFILE=${AWS_PROFILE}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_ECR_ENDPOINT=${AWS_ECR_ENDPOINT}
+    working_dir: /usr/local/src
+    entrypoint: bash
