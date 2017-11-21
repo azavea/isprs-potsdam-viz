@@ -2,7 +2,7 @@
 
 set -e
 
-if [[ -n "${PC_DEMO_DEBUG}" ]]; then
+if [[ -n "${POTSDAM_DEBUG}" ]]; then
     set -x
 fi
 
@@ -20,15 +20,20 @@ then
     then
         usage
     else
+        docker-compose pull
+
+        docker-compose run --rm --no-deps \
+            api-server update
+
         # Install npm dependencies
         docker-compose \
             -f docker-compose.yml \
-            run --rm --no-deps app-frontend npm install
+            run --rm --no-deps app-frontend install --quiet
 
         # Build React application
         docker-compose \
             -f docker-compose.yml \
             -f docker-compose.test.yml \
-            run --rm --no-deps app-frontend
+            run --rm --no-deps app-frontend run bundle
     fi
 fi

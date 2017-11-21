@@ -4,10 +4,10 @@ RUN \
       addgroup -S server \
       && adduser -D -S -h /var/lib/server -s /sbin/nologin -G server server
 
-COPY ./target/scala-2.11/rv-server.jar /var/lib/server/
+COPY target/scala-2.11/potsdam-server.jar /var/lib/server/
 
 USER server
 WORKDIR /var/lib/server
 
 ENTRYPOINT ["java"]
-CMD ["-jar", "rv-server.jar"]
+CMD ["-jar", "potsdam-server.jar"]
