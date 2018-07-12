@@ -38,12 +38,16 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         case "${1}" in
             plan)
                 rm -rf .terraform terraform.tfstate* 
+                aws s3 cp "s3://${POTSDAM_SETTINGS_BUCKET}/terraform/potsdam/terraform.tfvars" \
+                    "${POTSDAM_SETTINGS_BUCKET}.tfvars"
+
                 terraform init \
                   -backend-config="bucket=${POTSDAM_SETTINGS_BUCKET}" \
                   -backend-config="key=terraform/potsdam/state"
 
                 terraform plan \
                           -var="image_version=\"${TRAVIS_COMMIT}\"" \
+                          -var-file="${POTSDAM_SETTINGS_BUCKET}.tfvars" \
                           -out="${POTSDAM_SETTINGS_BUCKET}.tfplan"
                 ;;
             apply)
