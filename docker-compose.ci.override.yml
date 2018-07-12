@@ -1,0 +1,13 @@
+version: '2.1'
+services:
+  terraform:
+    image: "quay.io/azavea/terraform:0.9.11"
+    volumes:
+      - ~/.aws:/root/.aws
+    environment:
+      - AWS_PROFILE=${AWS_PROFILE}
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_ECR_ENDPOINT=${AWS_ECR_ENDPOINT}
+    working_dir: /usr/local/src
+    entrypoint: bash
