@@ -15,6 +15,7 @@ variable "aws_region" {
 variable "aws_account_id" {
   default = "896538046175"
 }
+
 variable "remote_state_bucket" {
   default = "geotrellis-site-production-config-us-east-1"
 }
@@ -23,6 +24,10 @@ variable "remote_state_bucket" {
 variable "image_version" {}
 
 variable "ssl_certificate_arn" {}
+
+variable "ecs_autoscaling_role_name" {
+  default = "AWSServiceRoleForApplicationAutoScaling_ECSService"
+}
 
 variable "potsdam_ecs_desired_count" {
   default = "1"

@@ -22,6 +22,10 @@ resource "aws_cloudwatch_log_group" "potsdam" {
   }
 }
 
+data "aws_iam_role" "autoscaling" {
+  role_name = "${var.ecs_autoscaling_role_name}"
+}
+
 module "potsdam_ecs_service" {
   source = "github.com/azavea/terraform-aws-ecs-web-service?ref=0.2.0"
 
@@ -44,7 +48,7 @@ module "potsdam_ecs_service" {
   container_port                 = "443"
   health_check_path              = "/"
   ecs_service_role_name          = "${data.terraform_remote_state.core.ecs_service_role_name}"
-  ecs_autoscale_role_arn         = "${data.terraform_remote_state.core.ecs_autoscale_role_arn}"
+  ecs_autoscale_role_arn         = "${data.aws_iam_role.autoscaling.arn}"
 
   project     = "Potsdam Demo"
   environment = "${var.environment}"
